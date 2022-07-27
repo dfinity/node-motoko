@@ -1,3 +1,5 @@
+'use strict'
+
 const mo = require('..');
 
 const actorMo = `
