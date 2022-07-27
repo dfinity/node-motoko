@@ -1,10 +1,14 @@
 # Motoko
 
-### Compile [Motoko](https://smartcontracts.org/) smart contracts in Node.js and the browser.
+> ### Compile [Motoko](https://smartcontracts.org/) smart contracts in Node.js and the browser.
+
+---
 
 ## Installation:
 
-`npm install --save motoko`
+```sh
+npm install -S motoko
+```
 
 ## Basic Example:
 
@@ -23,7 +27,7 @@ actor {
 `);
 
 // Generate the corresponding Candid interface
-console.log(mo.candid('Main.mo'))
+console.log(mo.candid('Main.mo'));
 ```
 
 ## Advanced Usage:
