@@ -18,16 +18,19 @@ actor Main {
 // }
 // `;
 
-const baseInfo = {
-    name: 'base',
-    repo: 'https://github.com/dfinity/motoko-base.git',
-    dir: 'src',
-    version: 'master',
-    homepage: 'https://sdk.dfinity.org/docs/base-libraries/stdlib-intro.html',
-};
+// const baseInfo = {
+//     name: 'base',
+//     repo: 'https://github.com/dfinity/motoko-base.git',
+//     dir: 'src',
+//     version: 'master',
+//     homepage: 'https://sdk.dfinity.org/docs/base-libraries/stdlib-intro.html',
+// };
 
 (async () => {
-    await mo.loadPackage(baseInfo);
+    // await mo.loadPackage(baseInfo);
+    await mo.loadPackages({
+        base: 'dfinity/motoko-base/master/src',
+    });
 
     mo.addFile('Main.mo', actorMo);
 
@@ -51,7 +54,9 @@ const baseInfo = {
 
     const candid = mo.candid('Main.mo');
     console.log(candid);
-    console.log(mo.parseCandid(candid));
 
-    // console.log(JSON.stringify(ast, null, 1));
+    const candidAST = mo.parseCandid(candid);
+    console.log(candidAST);
+
+    console.log(JSON.stringify(ast, null, 1));
 })().catch((err) => console.error(err.stack || err));
