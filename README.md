@@ -1,6 +1,6 @@
 # Motoko
 
-### Compile [Motoko smart contracts](https://smartcontracts.org/) in Node.js and the browser.
+### Compile [Motoko](https://smartcontracts.org/) smart contracts in Node.js and the browser.
 
 ## Installation:
 
@@ -22,7 +22,7 @@ actor {
 }
 `);
 
-// Generate a Candid interface
+// Generate the corresponding Candid interface
 console.log(mo.candid('Main.mo'))
 ```
 
@@ -35,9 +35,9 @@ await mo.loadPackages({
     base: 'dfinity/motoko-base/master/src',
 });
 
-// Generate the AST for a Motoko file
+// Generate a Motoko AST
 console.log(mo.parse('actor Main { public func test() : async Nat { 123 } }'));
 
-// Generate the AST for a Candid file
+// Generate a Candid AST
 console.log(mo.parseCandid('service : { test : () -> (nat) }'));
 ```
