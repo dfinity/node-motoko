@@ -1,0 +1,25 @@
+{
+  "name": "motoko",
+  "version": "0.1.0",
+  "description": "A JavaScript wrapper for the Motoko compiler",
+  "author": "Ryan Vandersmith (https://github.com/rvanasa)",
+  "license": "Apache-2.0",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "jest": "^28.1.3",
+    "prettier": "^2.7.1"
+  },
+  "directories": {
+    "lib": "lib"
+  },
+  "files": [
+    "lib"
+  ],
+  "dependencies": {
+    "cross-fetch": "^3.1.5"
+  }
+}
