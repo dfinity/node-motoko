@@ -43,6 +43,7 @@ export const MOTOKO_KEYWORDS = [
     'stable',
     'flexible',
     'system',
+    'ignore',
 ];
 
 export const configure = (monaco) => {
