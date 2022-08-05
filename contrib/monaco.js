@@ -1,6 +1,6 @@
 // Monaco editor configuration
 
-export const MOTOKO_KEYWORDS = [
+const MOTOKO_KEYWORDS = [
     'actor',
     'and',
     'async',
@@ -46,7 +46,7 @@ export const MOTOKO_KEYWORDS = [
     'ignore',
 ];
 
-export const configure = (monaco) => {
+exports.configure = (monaco) => {
     monaco.languages.register({ id: 'motoko' });
     monaco.languages.setLanguageConfiguration('motoko', {
         comments: {
