@@ -17,18 +17,18 @@ actor Main {
     //     base: 'dfinity/motoko-base/master/src',
     // });
 
-    mo.addFile('Main.mo', actorMo);
+    const file = mo.file('Main.mo').write(actorMo);
 
     // let x = Motoko.compileWasm('ic', 'Main.mo');
     // console.log(x);
 
-    const ast = mo.parse(actorMo);
+    const ast = file.parse();
     // console.log(ast);
 
     console.log(mo.listFiles('.'));
     // console.log(mo.listFiles('base'));
 
-    const candid = mo.candid('Main.mo');
+    const candid = file.candid();
     console.log(candid);
 
     const candidAST = mo.parseCandid(candid);
