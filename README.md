@@ -7,7 +7,7 @@
 ## Installation:
 
 ```sh
-npm install --save motoko
+npm i --save motoko
 ```
 
 ## Examples:
