@@ -83,7 +83,7 @@ import mo from 'motoko/interpreter';
 
 ## API:
 
-### Top-Level API
+### Top-level API
 
 ```js
 // Read the contents of a virtual file
