@@ -2,39 +2,17 @@
 
 const mo = require('..');
 
-const actorMo = `
-// import Nat "mo:base/Nat";
-
+const file = mo.file('Main.mo');
+file.write(`
 actor Main {
-    public func test() : async Nat {
+    public query func test() : async Nat {
         123
     }
 }
-`;
+`);
 
-(async () => {
-    // await mo.loadPackages({
-    //     base: 'dfinity/motoko-base/master/src',
-    // });
+const motokoAST = file.parseMotoko();
+console.log('Motoko AST:', motokoAST);
 
-    const file = mo.file('Main.mo').write(actorMo);
-
-    // let x = Motoko.compileWasm('ic', 'Main.mo');
-    // console.log(x);
-
-    const ast = file.parse();
-    // console.log(ast);
-
-    console.log(mo.listFiles('.'));
-    // console.log(mo.listFiles('base'));
-
-    const candid = file.candid();
-    console.log(candid);
-
-    const candidAST = mo.parseCandid(candid);
-    console.log(candidAST);
-
-    // mo.wasm('wasi', 'Main.mo');
-
-    // console.log(JSON.stringify(ast, null, 1));
-})().catch((err) => console.error(err.stack || err));
+const candidAST = mo.parseCandid(file.candid());
+console.log('Candid AST:', candidAST);

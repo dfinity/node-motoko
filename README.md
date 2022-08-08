@@ -22,7 +22,7 @@ const mo = require('motoko');
 // Create a Motoko script in a virtual file system
 mo.write('Main.mo', `
 actor {
-    public func hello() : async Text {
+    public query func hello() : async Text {
         "Hello, JavaScript!"
     }
 }
@@ -37,7 +37,7 @@ console.log(mo.candid('Main.mo'));
 ```js
 mo.write('Main.mo', `
 actor Main {
-  public func hello() : async Text {
+  public query func hello() : async Text {
     "Hello, world!"
   };
 };
@@ -51,7 +51,7 @@ mo.run('Main.mo');
 
 ```js
 mo.file('Main.mo')
-    .write('actor Main { public func getNumber() : async Nat { 5 } }')
+    .write('actor Main { public query func getNumber() : async Nat { 5 } }')
     .run();
 ```
 
@@ -68,10 +68,17 @@ await mo.loadPackages({
 
 ```js
 // Generate a Motoko AST
-console.log(mo.parseMotoko('actor Main { public func test() : async Nat { 123 } }'));
+console.log(mo.parseMotoko('actor Main { public query func test() : async Nat { 123 } }'));
 
 // Generate a Candid AST
 console.log(mo.parseCandid('service : { test : () -> (nat) }'));
+```
+
+### Optimize for Browsers
+
+```js
+// Load just the `write()`, `loadPackages()`, `clearPackages()`, and `run()`, operations for a smaller file size:
+import mo from 'motoko/latest/interpreter';
 ```
 
 ## API:
@@ -149,13 +156,13 @@ file.clone()
 file.read()
 
 // Write a string to the file
-file.write(string)...
+file.write(string)
 
 // Rename the file
-file.rename(newPath)...
+file.rename(newPath)
 
 // Delete the file
-file.delete()...
+file.delete()
 
 // List children (if a directory)
 file.list()
@@ -171,7 +178,7 @@ file.candid()
 
 // Compile the file to WebAssembly (see `mo.wasm()`)
 file.wasm('ic')
-file.wasm('wasi')
+file.wasm('wasi') // note: cannot contain actors
 
 // Parse the file as a Motoko program
 file.parseMotoko()
