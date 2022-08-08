@@ -107,14 +107,14 @@ await mo.loadPackages({ packageName: repositoryPath, ... })
 // Use a virtual directory as a package
 mo.addPackage(packageName, directory)
 
+// Clear loaded packages
+mo.clearPackages()
+
 // Configure the compiler to resolve `import "canister:{alias}";` -> `import "canister:{id}";`
 mo.setAliases({ alias: id, ... })
 
 // Set the public metadata (an array of strings) used by the compiler
 mo.setMetadata(strings)
-
-// Clear loaded packages
-mo.clearPackages()
 
 // Generate errors and warnings for a Motoko program
 mo.check(path)
