@@ -12,7 +12,7 @@ npm install -S motoko
 
 ## Examples:
 
-### Basic Usage
+### Basic usage
 
 ```js
 import mo from 'motoko';
@@ -32,7 +32,7 @@ actor {
 console.log(mo.candid('Main.mo'));
 ```
 
-### Evaluate a Program
+### Evaluate a program
 
 ```js
 mo.write('Main.mo', `
@@ -47,7 +47,7 @@ await Main.hello();
 mo.run('Main.mo');
 ```
 
-### Evaluate a Program (Shorthand)
+### Evaluate a program (shorthand)
 
 ```js
 mo.file('Main.mo')
@@ -55,16 +55,16 @@ mo.file('Main.mo')
     .run();
 ```
 
-### Load GitHub Dependencies
+### Load dependencies from GitHub
 
 ```js
 mo.clearPackages();
 await mo.loadPackages({
-    base: 'dfinity/motoko-base/master/src',
+    base: 'dfinity/motoko-base/master/src', // import "mo:base/...";
 });
 ```
 
-### Generate Parse Trees
+### Generate parse trees
 
 ```js
 // Generate a Motoko AST
@@ -74,7 +74,7 @@ console.log(mo.parseMotoko('actor Main { public query func test() : async Nat { 
 console.log(mo.parseCandid('service : { test : () -> (nat) }'));
 ```
 
-### Optimize for Browsers
+### Optimize for browsers
 
 ```js
 // Load just the `write()`, `loadPackages()`, `clearPackages()`, and `run()`, operations for a smaller file size:
