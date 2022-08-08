@@ -7,7 +7,7 @@
 ## Installation:
 
 ```sh
-npm install -S motoko
+npm install --save motoko
 ```
 
 ## Examples:
@@ -24,7 +24,7 @@ mo.write('Main.mo', `
 actor {
     public query func hello() : async Text {
         "Hello, JavaScript!"
-    }
+    };
 }
 `);
 
@@ -78,7 +78,7 @@ console.log(mo.parseCandid('service : { test : () -> (nat) }'));
 
 ```js
 // Load just the `write()`, `loadPackages()`, `clearPackages()`, and `run()`, operations for a smaller file size:
-import mo from 'motoko/latest/interpreter';
+import mo from 'motoko/interpreter';
 ```
 
 ## API:
@@ -136,8 +136,11 @@ mo.parseMotoko(motokoString)
 // Return the parse tree for a Candid string
 mo.parseCandid(candidString)
 
+// Get the version name
+mo.version
+
 // Access the underlying Motoko compiler
-mo.Motoko
+mo.compiler
 ```
 
 ### File API

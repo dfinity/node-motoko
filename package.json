@@ -4,7 +4,7 @@
     "description": "Compile Motoko smart contracts in Node.js and the browser.",
     "author": "Ryan Vandersmith (https://github.com/rvanasa)",
     "license": "Apache-2.0",
-    "main": "lib/index.js",
+    "main": "./index.js",
     "scripts": {
         "generate": "node utils/generate",
         "test": "jest"
@@ -20,12 +20,12 @@
     },
     "directories": {
         "lib": "lib",
-        "contrib": "contrib",
-        "latest": "versions/latest"
+        "contrib": "contrib"
     },
     "files": [
         "lib",
-        "contrib"
+        "contrib",
+        "versions/latest"
     ],
     "keywords": [
         "motoko",
