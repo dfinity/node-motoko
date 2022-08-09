@@ -47,13 +47,12 @@ console.log('WASI:', wasiResult);
     const module = await (WebAssembly.compileStreaming || WebAssembly.compile)(
         wasiResult.wasm,
     );
-    // Instantiate the WASI module
     await wasi.instantiate(module, {});
-
-    // Run the start function
     let exitCode = wasi.start();
     let stdout = wasi.getStdoutString();
+    let stderr = wasi.getStderrString();
 
     console.log(stdout);
+    console.error(stderr);
     console.log('Exit code:', exitCode);
 })();
