@@ -1,9 +1,10 @@
 'use strict';
 
-const mo = require('../lib');
+const mo = require('..');
+
+// Compile a WASM file for the IC
 
 const icFile = mo.file('IC.mo');
-
 icFile.write(`
 actor {
     var value: Int = 0;
@@ -17,16 +18,42 @@ actor {
     };
 };
 `);
+const icResult = icFile.wasm('ic');
+console.log('IC:', icResult);
 
-const ic = icFile.wasm('ic');
-console.log('IC output:', ic);
+// Compile a WASI module (runnable in the browser)
 
 const wasiFile = mo.file('WASI.mo');
 wasiFile.write(`
-module {
+import { debugPrint = print } "mo:⛔";
+
+module Interface {
     public let value = 5;
 };
+
+print(">>> value = " # debug_show Interface.value);
 `);
 
-const wasi = wasiFile.wasm('wasi');
-console.log('WASI output:', wasi);
+const wasiResult = wasiFile.wasm('wasi');
+console.log('WASI:', wasiResult);
+
+(async () => {
+    const { init, WASI } = require('@wasmer/wasi');
+
+    await init();
+
+    const wasi = new WASI({});
+
+    const module = await (WebAssembly.compileStreaming || WebAssembly.compile)(
+        wasiResult.wasm,
+    );
+    // Instantiate the WASI module
+    await wasi.instantiate(module, {});
+
+    // Run the start function
+    let exitCode = wasi.start();
+    let stdout = wasi.getStdoutString();
+
+    console.log(stdout);
+    console.log('Exit code:', exitCode);
+})();
