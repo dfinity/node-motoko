@@ -5,6 +5,10 @@
     "author": "Ryan Vandersmith (https://github.com/rvanasa)",
     "license": "Apache-2.0",
     "main": "./index.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/dfinity/node-motoko.git"
+    },
     "scripts": {
         "generate": "node utils/generate",
         "test": "jest"
