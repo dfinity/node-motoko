@@ -25,7 +25,7 @@
     },
     "directories": {
         "lib": "lib",
-        "contrib": "contrib"
+        "example": "examples"
     },
     "files": [
         "index.js",
