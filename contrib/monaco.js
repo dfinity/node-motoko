@@ -44,6 +44,7 @@ const MOTOKO_KEYWORDS = [
     'flexible',
     'system',
     'ignore',
+    'with',
 ];
 
 exports.configure = (monaco) => {
