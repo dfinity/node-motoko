@@ -1,5 +1,6 @@
-// Highlight.js configuration
+'use strict';
 
+/// Highlight.js configuration
 exports.configure = (hljs) => {
     var string = {
         className: 'string',
