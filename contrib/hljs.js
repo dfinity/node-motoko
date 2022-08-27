@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 /// Highlight.js configuration
 exports.configure = (hljs) => {
