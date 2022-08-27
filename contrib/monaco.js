@@ -1,5 +1,6 @@
-// Monaco editor configuration
+'use strict'
 
+/// Monaco editor configuration
 exports.configure = (monaco) => {
     monaco.languages.register({ id: "motoko" });
     monaco.languages.setLanguageConfiguration("motoko", {
@@ -26,17 +27,17 @@ exports.configure = (monaco) => {
         // prettier-ignore
         keywords: [
             'actor', 'and', 'async', 'assert', 'await', 'break', 'case', 'catch', 'class',
-            'continue', 'debug', 'else', 'false', 'for', 'from_candid', 'func', 'if', 'ignore', 'in', 'import',
-            'module', 'not', 'null', 'object', 'or', 'label', 'let', 'loop', 'private',
-            'public', 'return', 'shared', 'try', 'throw', 'to_candid', 'debug_show', 'query', 'switch',
-            'true', 'type', 'var', 'while', 'with',
+            'continue', 'debug', 'debug_show', 'do', 'else', 'false', 'for', 'from_candid', 'func', 'if', 'ignore', 'in', 'import',
+            'label', 'let', 'loop', 'module', 'not', 'null', 'object', 'or', 'return',
+            'switch', 'throw', 'to_candid', 'true', 'try', 'type', 'var', 'while', 'with',
         ],
         accessmodifiers: [
             "public",
             "private",
+            "flexible",
+            "query",
             "shared",
             "stable",
-            "flexible",
             "system",
         ],
         // prettier-ignore
