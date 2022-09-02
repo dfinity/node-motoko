@@ -1,6 +1,5 @@
 {
     "compilerOptions": {
-        "skipLibCheck": true,
         "module": "commonjs",
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
