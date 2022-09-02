@@ -137,7 +137,7 @@ mo.parseMotoko(motokoString)
 // Return the parse tree for a Candid string
 mo.parseCandid(candidString)
 
-// Get the version name
+// Get the compiler version ('latest' by default)
 mo.version
 
 // Access the underlying Motoko compiler
