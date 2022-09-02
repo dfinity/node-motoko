@@ -1,45 +1,29 @@
-'use strict';
-var __awaiter =
-    (this && this.__awaiter) ||
-    function (thisArg, _arguments, P, generator) {
-        function adopt(value) {
-            return value instanceof P
-                ? value
-                : new P(function (resolve) {
-                      resolve(value);
-                  });
-        }
-        return new (P || (P = Promise))(function (resolve, reject) {
-            function fulfilled(value) {
-                try {
-                    step(generator.next(value));
-                } catch (e) {
-                    reject(e);
-                }
-            }
-            function rejected(value) {
-                try {
-                    step(generator['throw'](value));
-                } catch (e) {
-                    reject(e);
-                }
-            }
-            function step(result) {
-                result.done
-                    ? resolve(result.value)
-                    : adopt(result.value).then(fulfilled, rejected);
-            }
-            step(
-                (generator = generator.apply(thisArg, _arguments || [])).next(),
-            );
-        });
+import { file } from './file';
+import { loadPackages, PackageInfo } from './package';
+
+export type Motoko = ReturnType<typeof getMotoko>;
+
+type Compiler = any; // TODO
+
+// TODO
+export type Diagnostic = {
+    code?: string | number | { target: any; value: string | number };
+    message: string;
+    range: {
+        start: { line: number; character: number };
+        end: { line: number; character: number };
     };
-Object.defineProperty(exports, '__esModule', { value: true });
-const file_1 = require('./file');
-const package_1 = require('./package');
-function getMotoko(compiler, version) {
+    severity: string;
+    source?: string;
+    tags?: string[];
+};
+
+export type WasmMode = 'ic' | 'wasi';
+
+export default function getMotoko(compiler: Compiler, version: string) {
     const debug = require('debug')(version ? `motoko:${version}` : 'motoko');
-    const invoke = (key, unwrap, args) => {
+
+    const invoke = (key: string, unwrap: boolean, args: any[]) => {
         if (!compiler) {
             throw new Error(
                 'Please load a Motoko compiler before running this function',
@@ -68,46 +52,45 @@ function getMotoko(compiler, version) {
             throw new Error(
                 result.diagnostics
                     ? result.diagnostics
-                          .map(({ message }) => message)
+                          .map(({ message }: Diagnostic) => message)
                           .join('; ')
                     : '(no diagnostics)',
             );
         }
         return result.code;
     };
+
     const mo = {
         version,
         compiler,
-        file(path) {
-            return (0, file_1.file)(mo, path);
+        file(path: string) {
+            return file(mo, path);
         },
         // findPackage,
-        loadPackages(packages) {
-            return __awaiter(this, void 0, void 0, function* () {
-                return (0, package_1.loadPackages)(mo, packages);
-            });
+        async loadPackages(packages: Record<string, string | PackageInfo>) {
+            return loadPackages(mo, packages);
         },
-        read(path) {
+        read(path: string): string {
             return invoke('readFile', false, [path]);
         },
-        write(path, content = '') {
+        write(path: string, content: string = '') {
             if (typeof content !== 'string') {
                 throw new Error('Non-string file content');
             }
             debug('+file', path);
             invoke('saveFile', false, [path, content]);
         },
-        rename(path, newPath) {
+        rename(path: string, newPath: string) {
             invoke('renameFile', false, [path, newPath]);
         },
-        delete(path) {
+        delete(path: string) {
             debug('-file', path);
             invoke('removeFile', false, [path]);
         },
-        list(directory) {
+        list(directory: string): string[] {
             return invoke('readDir', false, [directory]);
         },
-        addPackage(name, directory) {
+        addPackage(name: string, directory: string) {
             debug('+package', name, directory);
             invoke('addPackage', false, [name, directory]);
         },
@@ -115,25 +98,27 @@ function getMotoko(compiler, version) {
             debug('-packages');
             invoke('clearPackage', false, []);
         },
-        setAliases(aliases) {
+        setAliases(aliases: string) {
             debug('aliases', aliases);
             invoke('setActorAliases', false, [Object.entries(aliases)]);
         },
-        setMetadata(values) {
+        setMetadata(values: string) {
             invoke('setPublicMetadata', false, [values]);
         },
-        check(path) {
+        check(path: string): Diagnostic[] {
             const result = invoke('check', false, [path]);
             return result.diagnostics;
         },
-        run(path, libPaths) {
-            // TODO!
+        run(
+            path: string,
+            libPaths?: string[] | undefined,
+        ): { stdout: string; stderr: string; result: number | string } {
             return invoke('run', false, [libPaths || [], path]);
         },
-        candid(path) {
+        candid(path: string): string {
             return invoke('candid', true, [path]);
         },
-        wasm(path, mode) {
+        wasm(path: string, mode: WasmMode) {
             if (!mode) {
                 mode = 'ic';
             } else if (mode !== 'ic' && mode !== 'wasi') {
@@ -141,10 +126,10 @@ function getMotoko(compiler, version) {
             }
             return invoke('compileWasm', true, [mode, path]);
         },
-        parseMotoko(content) {
+        parseMotoko(content: string): object {
             return invoke('parseMotoko', true, [content]);
         },
-        parseCandid(content) {
+        parseCandid(content: string): object {
             return invoke('parseCandid', true, [content]);
         },
     };
@@ -152,5 +137,3 @@ function getMotoko(compiler, version) {
     mo.default = mo;
     return mo;
 }
-exports.default = getMotoko;
-//# sourceMappingURL=index.js.map

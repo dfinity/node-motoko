@@ -1,7 +1,6 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-exports.file = void 0;
-function getValidPath(path) {
+import { Motoko, WasmMode } from '.';
+
+function getValidPath(path: string): string {
     if (typeof path !== 'string') {
         throw new Error('File path must be a string');
     }
@@ -13,10 +12,13 @@ function getValidPath(path) {
     }
     return path;
 }
-const file = (mo, path) => {
+
+export type MotokoFile = ReturnType<typeof file>;
+
+export const file = (mo: Motoko, path: string) => {
     path = getValidPath(path);
     const result = {
-        get path() {
+        get path(): string {
             return path;
         },
         // file(subPath) {
@@ -26,13 +28,13 @@ const file = (mo, path) => {
         clone() {
             return exports.file(path);
         },
-        read() {
+        read(): string {
             return mo.read(path);
         },
-        write(content) {
+        write(content: string) {
             return mo.write(path, content);
         },
-        rename(newPath) {
+        rename(newPath: string) {
             let result = mo.rename(path, newPath);
             path = newPath;
             return result;
@@ -52,7 +54,7 @@ const file = (mo, path) => {
         candid() {
             return mo.candid(path);
         },
-        wasm(mode) {
+        wasm(mode: WasmMode) {
             return mo.wasm(path, mode);
         },
         parseMotoko() {
@@ -64,5 +66,3 @@ const file = (mo, path) => {
     };
     return result;
 };
-exports.file = file;
-//# sourceMappingURL=file.js.map
