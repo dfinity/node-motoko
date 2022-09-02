@@ -1,6 +1,4 @@
-'use strict';
-
-const mo = require('../..');
+import mo from '../src/versions/moc';
 
 const actor = `
 actor Main {

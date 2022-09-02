@@ -1,6 +1,4 @@
-'use strict';
-
-const mo = require('../../interpreter');
+import mo from '../src/versions/interpreter';
 
 describe('run', () => {
     test('works for a basic example', () => {

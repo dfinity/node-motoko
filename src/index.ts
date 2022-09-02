@@ -1,12 +1,29 @@
-'use strict';
+import { file } from './file';
+import { loadPackages, PackageInfo } from './package';
 
-const { file } = require('./file');
-const { /* findPackage, */ loadPackages } = require('./package');
+export type Motoko = ReturnType<typeof getMotoko>;
 
-module.exports = (compiler, version) => {
+type Compiler = any; // TODO
+
+// TODO
+export type Diagnostic = {
+    code?: string | number | { target: any; value: string | number };
+    message: string;
+    range: {
+        start: { line: number; character: number };
+        end: { line: number; character: number };
+    };
+    severity: string;
+    source?: string;
+    tags?: string[];
+};
+
+export type WasmMode = 'ic' | 'wasi';
+
+export default function getMotoko(compiler: Compiler, version: string) {
     const debug = require('debug')(version ? `motoko:${version}` : 'motoko');
 
-    const invoke = (key, unwrap, args) => {
+    const invoke = (key: string, unwrap: boolean, args: any[]) => {
         if (!compiler) {
             throw new Error(
                 'Please load a Motoko compiler before running this function',
@@ -35,7 +52,7 @@ module.exports = (compiler, version) => {
             throw new Error(
                 result.diagnostics
                     ? result.diagnostics
-                          .map(({ message }) => message)
+                          .map(({ message }: Diagnostic) => message)
                           .join('; ')
                     : '(no diagnostics)',
             );
@@ -46,34 +63,34 @@ module.exports = (compiler, version) => {
     const mo = {
         version,
         compiler,
-        file(path) {
+        file(path: string) {
             return file(mo, path);
         },
         // findPackage,
-        async loadPackages(packages) {
+        async loadPackages(packages: Record<string, string | PackageInfo>) {
             return loadPackages(mo, packages);
         },
-        read(path) {
+        read(path: string): string {
             return invoke('readFile', false, [path]);
         },
-        write(path, content = '') {
+        write(path: string, content: string = '') {
             if (typeof content !== 'string') {
                 throw new Error('Non-string file content');
             }
             debug('+file', path);
             invoke('saveFile', false, [path, content]);
         },
-        rename(path, newPath) {
+        rename(path: string, newPath: string) {
             invoke('renameFile', false, [path, newPath]);
         },
-        delete(path) {
+        delete(path: string) {
             debug('-file', path);
             invoke('removeFile', false, [path]);
         },
-        list(directory) {
+        list(directory: string): string[] {
             return invoke('readDir', false, [directory]);
         },
-        addPackage(name, directory) {
+        addPackage(name: string, directory: string) {
             debug('+package', name, directory);
             invoke('addPackage', false, [name, directory]);
         },
@@ -81,24 +98,27 @@ module.exports = (compiler, version) => {
             debug('-packages');
             invoke('clearPackage', false, []);
         },
-        setAliases(aliases) {
+        setAliases(aliases: string) {
             debug('aliases', aliases);
             invoke('setActorAliases', false, [Object.entries(aliases)]);
         },
-        setMetadata(values) {
+        setMetadata(values: string) {
             invoke('setPublicMetadata', false, [values]);
         },
-        check(path) {
+        check(path: string): Diagnostic[] {
             const result = invoke('check', false, [path]);
             return result.diagnostics;
         },
-        run(path, libPaths) {
+        run(
+            path: string,
+            libPaths?: string[] | undefined,
+        ): { stdout: string; stderr: string; result: number | string } {
             return invoke('run', false, [libPaths || [], path]);
         },
-        candid(path) {
+        candid(path: string): string {
             return invoke('candid', true, [path]);
         },
-        wasm(path, mode) {
+        wasm(path: string, mode: WasmMode) {
             if (!mode) {
                 mode = 'ic';
             } else if (mode !== 'ic' && mode !== 'wasi') {
@@ -106,15 +126,14 @@ module.exports = (compiler, version) => {
             }
             return invoke('compileWasm', true, [mode, path]);
         },
-        parseMotoko(content) {
-            const ast = invoke('parseMotoko', true, [content]);
-            return ast;
+        parseMotoko(content: string): object {
+            return invoke('parseMotoko', true, [content]);
         },
-        parseCandid(content) {
-            const ast = invoke('parseCandid', true, [content]);
-            return ast;
+        parseCandid(content: string): object {
+            return invoke('parseCandid', true, [content]);
         },
     };
+    // @ts-ignore
+    mo.default = mo;
     return mo;
-};
-exports.default = exports;
+}

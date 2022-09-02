@@ -1,6 +1,6 @@
-'use strict';
+import { Motoko, WasmMode } from '.';
 
-function getValidPath(path) {
+function getValidPath(path: string): string {
     if (typeof path !== 'string') {
         throw new Error('File path must be a string');
     }
@@ -13,10 +13,12 @@ function getValidPath(path) {
     return path;
 }
 
-exports.file = (mo, path) => {
+export type MotokoFile = ReturnType<typeof file>;
+
+export const file = (mo: Motoko, path: string) => {
     path = getValidPath(path);
     const result = {
-        get path() {
+        get path(): string {
             return path;
         },
         // file(subPath) {
@@ -26,13 +28,13 @@ exports.file = (mo, path) => {
         clone() {
             return exports.file(path);
         },
-        read() {
+        read(): string {
             return mo.read(path);
         },
-        write(content) {
+        write(content: string) {
             return mo.write(path, content);
         },
-        rename(newPath) {
+        rename(newPath: string) {
             let result = mo.rename(path, newPath);
             path = newPath;
             return result;
@@ -44,7 +46,7 @@ exports.file = (mo, path) => {
             return mo.list(path);
         },
         check() {
-            return mo.check(path, ...args);
+            return mo.check(path);
         },
         run() {
             return mo.run(path);
@@ -52,7 +54,7 @@ exports.file = (mo, path) => {
         candid() {
             return mo.candid(path);
         },
-        wasm(mode) {
+        wasm(mode: WasmMode) {
             return mo.wasm(path, mode);
         },
         parseMotoko() {
