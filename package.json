@@ -47,9 +47,10 @@
     "files": [
         "index.js",
         "interpreter.js",
-        "lib",
-        "contrib",
-        "versions/latest"
+        "src/**/*",
+        "lib/**/*",
+        "contrib/**/*",
+        "versions/latest/**/*"
     ],
     "keywords": [
         "motoko",
