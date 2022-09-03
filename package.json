@@ -5,7 +5,7 @@
     "author": "Ryan Vandersmith (https://github.com/rvanasa)",
     "license": "Apache-2.0",
     "main": "./index.js",
-    "types": "./index.d.ts",
+    "types": "lib/versions/moc.d.ts",
     "repository": {
         "type": "git",
         "url": "https://github.com/dfinity/node-motoko.git"
