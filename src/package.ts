@@ -174,14 +174,14 @@ function parseGithubPackageInfo(path: string | PackageInfo): PackageInfo {
 async function fetchPackageFiles(
     info: PackageInfo,
 ): Promise<PackageFiles | undefined> {
-    if (
-        !info.repo.startsWith('https://github.com/') ||
-        !info.repo.endsWith('.git')
-    ) {
+    const prefix = 'https://github.com/';
+    const suffix = '.git';
+    if (!info.repo.startsWith(prefix) || !info.repo.endsWith(suffix)) {
         return;
     }
+    const repoPart = info.repo.slice(prefix.length, -suffix.length);
 
-    // TODO: optimize?
+    // TODO: modify condition?
     const possiblyCDN = !(
         (info.branch &&
             info.branch.length % 2 === 0 &&
@@ -193,20 +193,23 @@ async function fetchPackageFiles(
         const result = await fetchFromService(
             info,
             'CDN',
-            `https://data.jsdelivr.com/v1/package/gh/${info.repo}@${info.branch}/flat`,
-            `https://cdn.jsdelivr.net/gh/${info.repo}@${info.branch}`,
+            `https://data.jsdelivr.com/v1/package/gh/${repoPart}@${info.branch}/flat`,
+            `https://cdn.jsdelivr.net/gh/${repoPart}@${info.branch}`,
             'files',
+            'name',
         );
-        if (result) {
+        if (result?.length) {
             return result;
         }
     }
     return await fetchFromService(
         info,
         'GitHub',
-        `https://api.github.com/repos/${info.repo}/git/trees/${info.branch}?recursive=1`,
-        `https://raw.githubusercontent.com/${info.repo}/${info.branch}/`,
+        `https://api.github.com/repos/${repoPart}/git/trees/${info.branch}?recursive=1`,
+        `https://raw.githubusercontent.com/${repoPart}/${info.branch}/`,
         'tree',
+        'path',
+        (file) => file.type === 'blob',
     );
 }
 
@@ -216,34 +219,58 @@ async function fetchFromService(
     metaUrl: string,
     baseUrl: string,
     resultProperty: string,
+    pathProperty: string,
+    condition?: (file: any) => boolean,
 ): Promise<PackageFiles | undefined> {
     const response = await fetch(metaUrl);
-    const json = await response.json();
-    if (!json.hasOwnProperty(resultProperty)) {
-        throw new Error(
-            json.message || `Could not fetch from ${serviceName}: ${info.repo}`,
+    if (!response.ok) {
+        throw Error(
+            response.statusText ||
+                `Could not fetch from ${serviceName}: ${info.repo}`,
         );
     }
+    const json = await response.json();
+    if (!json.hasOwnProperty(resultProperty)) {
+        throw new Error(`Unexpected response from ${serviceName}`);
+    }
+    // Remove leading and trailing '/' from directory
+    let directory = info.dir
+        ? info.dir.replace(/^\//, '').replace(/\/$/, '')
+        : '';
     const files: Record<string, PackageFile> = {};
     await Promise.all(
         (<any[]>json[resultProperty])
-            .filter(
-                (file) =>
-                    file.name.startsWith(`/${info.dir}/`) &&
-                    // file.type === 'blob' && // GitHub
-                    /\.mo$/.test(file.name),
-            )
-            .map((file) => {
-                async () => {
-                    const content = await (
-                        await fetch(`${baseUrl}${file.name}`)
-                    ).text();
-                    const path = file.name.slice(
-                        info.dir ? info.dir.length + 1 : 0,
-                    );
-                    files[path] = {
-                        content,
-                    };
+            .filter((file) => {
+                return (
+                    (!directory ||
+                        file[pathProperty].startsWith(
+                            file[pathProperty].startsWith('/')
+                                ? `/${directory}`
+                                : directory,
+                        )) &&
+                    (!condition || condition(file)) &&
+                    /\.mo$/.test(file[pathProperty])
+                );
+            })
+            .map(async (file) => {
+                const response = await fetch(`${baseUrl}${file[pathProperty]}`);
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+
+                const content = await response.text();
+                console.log(content); /////
+                let path = file[pathProperty];
+                if (path.startsWith('/')) {
+                    path = path.slice(1);
+                }
+                if (directory) {
+                    // Remove directory prefix
+                    path = path.slice(directory.length + 1);
+                }
+                console.log(path); //////////////
+                files[path] = {
+                    content,
                 };
             }),
     );
