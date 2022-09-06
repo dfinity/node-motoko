@@ -25,6 +25,7 @@ export interface PackageFile {
     content: string;
 }
 
+// TODO: call `fetchPackage` instead of deprecated functions
 async function loadPackage(mo: Motoko, info: PackageInfo) {
     if (
         !info.repo.startsWith('https://github.com/') ||
@@ -46,6 +47,7 @@ async function loadPackage(mo: Motoko, info: PackageInfo) {
     return result ? true : false;
 }
 
+/** @deprecated */
 async function fetchGithub_(mo: Motoko, info: PackageInfo, directory = '') {
     const possiblyCDN = !(
         (info.branch.length % 2 === 0 && /^[A-F0-9]+$/i.test(info.branch)) ||
@@ -68,6 +70,7 @@ async function fetchGithub_(mo: Motoko, info: PackageInfo, directory = '') {
 //     }
 // }
 
+/** @deprecated */
 async function fetchFromCDN_(mo: Motoko, info: PackageInfo, directory = '') {
     const meta_url = `https://data.jsdelivr.com/v1/package/gh/${info.repo}@${info.branch}/flat`;
     const base_url = `https://cdn.jsdelivr.net/gh/${info.repo}@${info.branch}`;
@@ -99,6 +102,7 @@ async function fetchFromCDN_(mo: Motoko, info: PackageInfo, directory = '') {
     });
 }
 
+/** @deprecated */
 async function fetchFromGithub_(
     mo: Motoko,
     info: PackageInfo,
