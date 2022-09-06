@@ -102,8 +102,10 @@ mo.delete(path)
 // List the files in a virtual directory
 mo.list(path)
 
+await mo.fetchPackage({name: '', repo: ''});
+
 // Try to load packages from GitHub and/or jsDelivr
-await mo.loadPackages({ packageName: repositoryPath, ... })
+await mo.loadPackages({ [packageName]: repositoryPath, ... })
 
 // Use a virtual directory as a package
 mo.addPackage(packageName, directory)
