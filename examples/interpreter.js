@@ -1,6 +1,6 @@
 'use strict';
 
-const mo = require('../interpreter'); // 'motoko/latest/interpreter'
+const mo = require('../interpreter');
 
 const file = mo.file('Main.mo');
 file.write(`

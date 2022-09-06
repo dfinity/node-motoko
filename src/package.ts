@@ -9,11 +9,23 @@ export interface PackageInfo {
     name: string;
     repo: string;
     version: string;
-    dir: string;
+    dir?: string;
     branch?: string | undefined;
 }
 
-async function fetchPackage(mo: Motoko, info: PackageInfo) {
+export interface Package {
+    name: string;
+    version: string;
+    files: PackageFiles;
+}
+
+export type PackageFiles = Record<string, PackageFile>;
+
+export interface PackageFile {
+    content: string;
+}
+
+async function loadPackage(mo: Motoko, info: PackageInfo) {
     if (
         !info.repo.startsWith('https://github.com/') ||
         !info.repo.endsWith('.git')
@@ -27,26 +39,26 @@ async function fetchPackage(mo: Motoko, info: PackageInfo) {
         branch: info.version,
         dir: info.dir || 'src',
     };
-    const result = await fetchGithub(mo, repo, info.name);
+    const result = await fetchGithub_(mo, repo, info.name);
     if (result) {
         mo.addPackage(info.name, info.name + '/');
     }
     return result ? true : false;
 }
 
-async function fetchGithub(mo: Motoko, info: PackageInfo, directory = '') {
+async function fetchGithub_(mo: Motoko, info: PackageInfo, directory = '') {
     const possiblyCDN = !(
         (info.branch.length % 2 === 0 && /^[A-F0-9]+$/i.test(info.branch)) ||
         info.branch === 'master' ||
         info.branch === 'main'
     );
     if (possiblyCDN) {
-        const result = await fetchFromCDN(mo, info, directory);
+        const result = await fetchFromCDN_(mo, info, directory);
         if (result) {
             return result;
         }
     }
-    return await fetchFromGithub(mo, info, directory);
+    return await fetchFromGithub_(mo, info, directory);
 }
 
 // function saveWorkplaceToMotoko(mo, files) {
@@ -56,7 +68,7 @@ async function fetchGithub(mo: Motoko, info: PackageInfo, directory = '') {
 //     }
 // }
 
-async function fetchFromCDN(mo: Motoko, info: PackageInfo, directory = '') {
+async function fetchFromCDN_(mo: Motoko, info: PackageInfo, directory = '') {
     const meta_url = `https://data.jsdelivr.com/v1/package/gh/${info.repo}@${info.branch}/flat`;
     const base_url = `https://cdn.jsdelivr.net/gh/${info.repo}@${info.branch}`;
     const response = await fetch(meta_url);
@@ -87,7 +99,7 @@ async function fetchFromCDN(mo: Motoko, info: PackageInfo, directory = '') {
     });
 }
 
-async function fetchFromGithub(
+async function fetchFromGithub_(
     mo: Motoko,
     info: PackageInfo,
     directory: string = '',
@@ -129,14 +141,7 @@ async function fetchFromGithub(
     });
 }
 
-// async function resolve(path) {
-
-// }
-
-function parseGithubPackage(
-    path: string | PackageInfo,
-    name: string,
-): PackageInfo {
+function parseGithubPackageInfo(path: string | PackageInfo): PackageInfo {
     if (!path) {
         return;
     }
@@ -151,17 +156,138 @@ function parseGithubPackage(
             return;
         }
     } catch (err) {
-        console.warn(err);
+        // console.warn(err);
+        return;
     }
 
-    const { name: repoName, filepath, branch, owner } = result;
-
+    const { name, filepath, branch, owner } = result;
     return {
-        name: name || repoName,
-        repo: `https://github.com/${owner}/${repoName}.git`,
+        name,
+        repo: `https://github.com/${owner}/${name}.git`,
         version: branch,
         dir: filepath,
+        branch,
         // homepage: ,
+    };
+}
+
+async function fetchPackageFiles(
+    info: PackageInfo,
+): Promise<PackageFiles | undefined> {
+    const prefix = 'https://github.com/';
+    const suffix = '.git';
+    if (!info.repo.startsWith(prefix) || !info.repo.endsWith(suffix)) {
+        return;
+    }
+    const repoPart = info.repo.slice(prefix.length, -suffix.length);
+
+    // TODO: modify condition?
+    const possiblyCDN = !(
+        (info.branch &&
+            info.branch.length % 2 === 0 &&
+            /^[A-F0-9]+$/i.test(info.branch)) ||
+        info.branch === 'master' ||
+        info.branch === 'main'
+    );
+    if (possiblyCDN) {
+        const result = await fetchFromService(
+            info,
+            'CDN',
+            `https://data.jsdelivr.com/v1/package/gh/${repoPart}@${info.branch}/flat`,
+            `https://cdn.jsdelivr.net/gh/${repoPart}@${info.branch}`,
+            'files',
+            'name',
+        );
+        if (result?.length) {
+            return result;
+        }
+    }
+    return await fetchFromService(
+        info,
+        'GitHub',
+        `https://api.github.com/repos/${repoPart}/git/trees/${info.branch}?recursive=1`,
+        `https://raw.githubusercontent.com/${repoPart}/${info.branch}/`,
+        'tree',
+        'path',
+        (file) => file.type === 'blob',
+    );
+}
+
+async function fetchFromService(
+    info: PackageInfo,
+    serviceName: string,
+    metaUrl: string,
+    baseUrl: string,
+    resultProperty: string,
+    pathProperty: string,
+    condition?: (file: any) => boolean,
+): Promise<PackageFiles | undefined> {
+    const response = await fetch(metaUrl);
+    if (!response.ok) {
+        throw Error(
+            response.statusText ||
+                `Could not fetch from ${serviceName}: ${info.repo}`,
+        );
+    }
+    const json = await response.json();
+    if (!json.hasOwnProperty(resultProperty)) {
+        throw new Error(`Unexpected response from ${serviceName}`);
+    }
+    // Remove leading and trailing '/' from directory
+    let directory = info.dir
+        ? info.dir.replace(/^\//, '').replace(/\/$/, '')
+        : '';
+    const files: Record<string, PackageFile> = {};
+    await Promise.all(
+        (<any[]>json[resultProperty])
+            .filter((file) => {
+                return (
+                    (!directory ||
+                        file[pathProperty].startsWith(
+                            file[pathProperty].startsWith('/')
+                                ? `/${directory}`
+                                : directory,
+                        )) &&
+                    (!condition || condition(file)) &&
+                    /\.mo$/.test(file[pathProperty])
+                );
+            })
+            .map(async (file) => {
+                const response = await fetch(`${baseUrl}${file[pathProperty]}`);
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                const content = await response.text();
+                let path = file[pathProperty];
+                if (path.startsWith('/')) {
+                    path = path.slice(1);
+                }
+                if (directory) {
+                    // Remove directory prefix
+                    path = path.slice(directory.length + 1);
+                }
+                files[path] = {
+                    content,
+                };
+            }),
+    );
+    return files;
+}
+
+export async function fetchPackage(
+    info: string | PackageInfo,
+): Promise<Package | undefined> {
+    if (typeof info === 'string') {
+        info = parseGithubPackageInfo(info);
+    }
+    const files = await fetchPackageFiles(info);
+    if (!files) {
+        return;
+    }
+    return {
+        name: info.name,
+        version: info.version,
+        files,
     };
 }
 
@@ -171,15 +297,11 @@ export async function loadPackages(
 ) {
     await Promise.all(
         Object.entries(packages).map(([name, path]) => {
-            const info = parseGithubPackage(path, name);
-            return fetchPackage(mo, info);
+            const info = {
+                ...parseGithubPackageInfo(path),
+                name,
+            };
+            return loadPackage(mo, info);
         }),
     );
 }
-
-// export async function findPackage(package) {
-//     if (typeof package === 'string') {
-//         return resolve(package);
-//     }
-//     return package;
-// },

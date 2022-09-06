@@ -1,7 +1,7 @@
 import { file } from './file';
-import { loadPackages, PackageInfo } from './package';
+import { fetchPackage, loadPackages, PackageInfo } from './package';
 
-export type Motoko = ReturnType<typeof getMotoko>;
+export type Motoko = ReturnType<typeof wrapMotoko>;
 
 type Compiler = any; // TODO
 
@@ -20,7 +20,7 @@ export type Diagnostic = {
 
 export type WasmMode = 'ic' | 'wasi';
 
-export default function getMotoko(compiler: Compiler, version: string) {
+export default function wrapMotoko(compiler: Compiler, version: string) {
     const debug = require('debug')(version ? `motoko:${version}` : 'motoko');
 
     const invoke = (key: string, unwrap: boolean, args: any[]) => {
@@ -66,10 +66,6 @@ export default function getMotoko(compiler: Compiler, version: string) {
         file(path: string) {
             return file(mo, path);
         },
-        // findPackage,
-        async loadPackages(packages: Record<string, string | PackageInfo>) {
-            return loadPackages(mo, packages);
-        },
         read(path: string): string {
             return invoke('readFile', false, [path]);
         },
@@ -89,6 +85,12 @@ export default function getMotoko(compiler: Compiler, version: string) {
         },
         list(directory: string): string[] {
             return invoke('readDir', false, [directory]);
+        },
+        async fetchPackage(info: string | PackageInfo) {
+            return fetchPackage(info);
+        },
+        async loadPackages(packages: Record<string, string | PackageInfo>) {
+            return loadPackages(mo, packages);
         },
         addPackage(name: string, directory: string) {
             debug('+package', name, directory);
