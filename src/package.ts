@@ -257,9 +257,7 @@ async function fetchFromService(
                 if (!response.ok) {
                     throw Error(response.statusText);
                 }
-
                 const content = await response.text();
-                console.log(content); /////
                 let path = file[pathProperty];
                 if (path.startsWith('/')) {
                     path = path.slice(1);
@@ -268,7 +266,6 @@ async function fetchFromService(
                     // Remove directory prefix
                     path = path.slice(directory.length + 1);
                 }
-                console.log(path); //////////////
                 files[path] = {
                     content,
                 };
