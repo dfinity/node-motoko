@@ -1,4 +1,4 @@
-import getMotoko from '..';
+import wrapMotoko from '..';
 const { Motoko } = require('../../versions/latest/moc.min');
 
-export default getMotoko(Motoko, 'latest');
+export default wrapMotoko(Motoko, 'latest');
