@@ -2,7 +2,10 @@
 
 const mo = require('..');
 
-console.log(mo)
-const result = mo.fetchPackage('dfinity/motoko-base/master/src');
-
-console.log('Package:', result);
+mo.fetchPackage('dfinity/motoko-base/master/src')
+    .then(async (pkg) => {
+        const pkgMeta = { ...pkg };
+        delete pkgMeta.files;
+        console.log('Package:', pkgMeta);
+        console.log('Files', Object.keys(pkg.files))
+    })
