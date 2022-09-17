@@ -1,6 +1,6 @@
 import { file } from './file';
 import { fetchPackage, loadPackages, PackageInfo } from './package';
-import { resolveMain,resolveLib } from './utils/resolveEntryPoint';
+import { resolveMain, resolveLib } from './utils/resolveEntryPoint';
 
 export type Motoko = ReturnType<typeof wrapMotoko>;
 
@@ -138,10 +138,10 @@ export default function wrapMotoko(compiler: Compiler, version: string) {
         parseCandid(content: string): object {
             return invoke('parseCandid', true, [content]);
         },
-        resolveMain(directory:string=''): string | undefined {
+        resolveMain(directory: string = ''): string | undefined {
             return resolveMain(mo, directory);
         },
-        resolveLib(directory:string=''): string | undefined {
+        resolveLib(directory: string = ''): string | undefined {
             return resolveLib(mo, directory);
         },
     };
