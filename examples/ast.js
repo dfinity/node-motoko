@@ -11,8 +11,11 @@ actor Main {
 }
 `);
 
-const motokoAST = file.parseMotoko();
-console.log('Motoko AST:', motokoAST);
+const candid = mo.parseCandid(file.candid());
+console.log('Candid AST:', JSON.stringify(candid, null, 1));
 
-const candidAST = mo.parseCandid(file.candid());
-console.log('Candid AST:', candidAST);
+const motoko = file.parseMotoko();
+console.log('Motoko AST:', JSON.stringify(motoko, null, 1));
+
+const motokoTypes = file.parseMotokoTypes();
+console.log('Motoko AST with types:', JSON.stringify(motokoTypes, null, 1));

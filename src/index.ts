@@ -1,5 +1,6 @@
 import { file } from './file';
 import { fetchPackage, loadPackages, PackageInfo } from './package';
+import { resolveMain,resolveLib } from './utils/resolveEntryPoint';
 
 export type Motoko = ReturnType<typeof wrapMotoko>;
 
@@ -131,8 +132,17 @@ export default function wrapMotoko(compiler: Compiler, version: string) {
         parseMotoko(content: string): object {
             return invoke('parseMotoko', true, [content]);
         },
+        parseMotokoTypes(content: string): { ast: object; outputType: object } {
+            return invoke('parseMotokoTypes', true, [content]);
+        },
         parseCandid(content: string): object {
             return invoke('parseCandid', true, [content]);
+        },
+        resolveMain(directory:string=''): string | undefined {
+            return resolveMain(mo, directory);
+        },
+        resolveLib(directory:string=''): string | undefined {
+            return resolveLib(mo, directory);
         },
     };
     // @ts-ignore
