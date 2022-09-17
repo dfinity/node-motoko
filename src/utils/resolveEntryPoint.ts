@@ -55,10 +55,10 @@ function resolveEntryPoint(
     // return getOne(parsedFiles.filter());
 }
 
-export function resolveMain(mo: Motoko, directory: string): string | undefined {
+export function resolveMain(mo: Motoko, directory: string): string {
     return resolveEntryPoint(mo, directory, 'Main.mo');
 }
 
-export function resolveLib(mo: Motoko, directory: string): string | undefined {
+export function resolveLib(mo: Motoko, directory: string): string {
     return resolveEntryPoint(mo, directory, 'Lib.mo');
 }
