@@ -136,8 +136,17 @@ mo.wasm(path, 'wasi') // WASI interface format
 // Return the parse tree for a Motoko string
 mo.parseMotoko(motokoString)
 
+// Return the parse tree (with types) for a Motoko string
+mo.parseMotokoTypes(motokoString)
+
 // Return the parse tree for a Candid string
 mo.parseCandid(candidString)
+
+// Find the 'Main.mo' file or an equivalent canister entry point
+mo.resolveMain(directory = '')
+
+// Find the 'Lib.mo' file or an equivalent library entry point
+mo.resolveLib(directory = '')
 
 // Get the compiler version ('latest' by default)
 mo.version
@@ -188,6 +197,9 @@ file.wasm('wasi') // note: cannot contain actors
 
 // Parse the file as a Motoko program
 file.parseMotoko()
+
+// Parse the file (with types) as a Motoko program
+file.parseMotokoTypes()
 
 // Parse the file as a Candid interface
 file.parseCandid()
