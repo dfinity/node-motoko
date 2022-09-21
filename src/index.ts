@@ -101,7 +101,7 @@ export default function wrapMotoko(compiler: Compiler, version: string) {
             debug('-packages');
             invoke('clearPackage', false, []);
         },
-        setAliases(aliases: string) {
+        setAliases(aliases: Record<string, string>) {
             debug('aliases', aliases);
             invoke('setActorAliases', false, [Object.entries(aliases)]);
         },
