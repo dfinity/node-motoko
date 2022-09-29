@@ -4,6 +4,7 @@
 import { default as parse } from 'isomorphic-parse-github-url';
 import fetch from 'cross-fetch';
 import { Motoko } from '.';
+import sanitize from 'sanitize-filename';
 
 export interface PackageInfo {
     name: string;
@@ -42,7 +43,7 @@ async function loadPackage(mo: Motoko, info: PackageInfo) {
     };
     const result = await fetchGithub_(mo, repo, info.name);
     if (result) {
-        mo.addPackage(info.name, info.name + '/');
+        mo.usePackage(info.name, info.name + '/');
     }
     return result ? true : false;
 }
@@ -279,6 +280,7 @@ async function fetchFromService(
 }
 
 export async function fetchPackage(
+    name: string,
     info: string | PackageInfo,
 ): Promise<Package | undefined> {
     if (typeof info === 'string') {
@@ -289,13 +291,13 @@ export async function fetchPackage(
         return;
     }
     return {
-        name: info.name,
+        name,
         version: info.version,
         files,
     };
 }
 
-export async function loadPackages(
+export async function installPackages(
     mo: Motoko,
     packages: Record<string, string | PackageInfo>,
 ) {
@@ -308,4 +310,55 @@ export async function loadPackages(
             return loadPackage(mo, info);
         }),
     );
+}
+
+export function validatePackage(pkg: Package) {
+    function showValue(value: any) {
+        const string = JSON.stringify(value);
+        return string.length > 50 ? string.substring(0, 50) + '...' : string;
+    }
+    function getPackageDisplayName() {
+        return `(${pkg.name} / ${pkg.version})`;
+    }
+
+    if (typeof pkg !== 'object' || Array.isArray(pkg)) {
+        throw new Error(`Unexpected package: ${showValue(pkg)}`);
+    }
+    if (typeof pkg.name !== 'string' || sanitize(pkg.name) !== pkg.name) {
+        throw new Error(`Invalid package name ${getPackageDisplayName()}`);
+    }
+    if (
+        typeof pkg.version !== 'string' ||
+        sanitize(pkg.version) !== pkg.version
+    ) {
+        throw new Error(`Invalid package version ${getPackageDisplayName()}`);
+    }
+    if (typeof pkg.files !== 'object' || Array.isArray(pkg.files)) {
+        throw new Error(`Invalid package files: ${showValue(pkg.files)}`);
+    }
+
+    Object.entries(pkg.files).forEach(([path, file]) => {
+        if (
+            typeof path !== 'string' ||
+            path.split('/').some((p) => sanitize(p) !== p)
+        ) {
+            throw new Error(
+                `Invalid file path ${getPackageDisplayName()} [${path}]`,
+            );
+        }
+        if (typeof file !== 'object' || Array.isArray(file)) {
+            throw new Error(
+                `Invalid file ${getPackageDisplayName()} [${path}]: ${showValue(
+                    file,
+                )}`,
+            );
+        }
+        if (typeof file.content !== 'string') {
+            throw new Error(
+                `Invalid file content ${getPackageDisplayName()} [${path}]: ${showValue(
+                    file.content,
+                )}`,
+            );
+        }
+    });
 }
