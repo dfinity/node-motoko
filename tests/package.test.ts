@@ -11,7 +11,7 @@ describe('fetchPackage', () => {
     });
 
     test('load base library', async () => {
-        await mo.loadPackages({ base: 'dfinity/motoko-base/master/src' });
+        await mo.installPackages({ base: 'dfinity/motoko-base/master/src' });
 
         const file = mo.file('Test.mo');
         file.write('import Debug "mo:base/Debug"; Debug');

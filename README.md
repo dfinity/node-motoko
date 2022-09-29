@@ -60,7 +60,7 @@ mo.file('Main.mo')
 
 ```js
 mo.clearPackages();
-await mo.loadPackages({
+await mo.installPackages({
     base: 'dfinity/motoko-base/master/src', // import "mo:base/...";
 });
 ```
@@ -102,16 +102,23 @@ mo.delete(path)
 // List the files in a virtual directory
 mo.list(path)
 
+// Fetch a package from GitHub or jsDelivr
 await mo.fetchPackage({name: '', repo: ''});
 
-// Try to load packages from GitHub and/or jsDelivr
-await mo.loadPackages({ [packageName]: repositoryPath, ... })
+// Try to fetch and load packages from GitHub or jsDelivr
+await mo.installPackages({ [packageName]: repositoryPath, ... })
+
+// Load a value returned from `fetchPackage()`
+mo.loadPackage(package)
 
 // Use a virtual directory as a package
-mo.addPackage(packageName, directory)
+mo.usePackage(packageName, directory)
 
 // Clear loaded packages
 mo.clearPackages()
+
+// Ensure that a package is correctly formatted
+mo.validatePackage(package)
 
 // Configure the compiler to resolve `import "canister:{alias}";` -> `import "canister:{id}";`
 mo.setAliases({ alias: id, ... })

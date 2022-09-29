@@ -1,5 +1,12 @@
+import { Node, simplifyAST } from './ast';
 import { file } from './file';
-import { fetchPackage, loadPackages, PackageInfo } from './package';
+import {
+    fetchPackage,
+    installPackages,
+    Package,
+    PackageInfo,
+    validatePackage,
+} from './package';
 import { resolveMain, resolveLib } from './utils/resolveEntryPoint';
 
 export type Motoko = ReturnType<typeof wrapMotoko>;
@@ -22,7 +29,7 @@ export type Diagnostic = {
 export type WasmMode = 'ic' | 'wasi';
 
 export default function wrapMotoko(compiler: Compiler, version: string) {
-    const debug = require('debug')(version ? `motoko:${version}` : 'motoko');
+    const debug = require('debug')(`motoko:${version}`);
 
     const invoke = (key: string, unwrap: boolean, args: any[]) => {
         if (!compiler) {
@@ -90,16 +97,28 @@ export default function wrapMotoko(compiler: Compiler, version: string) {
         async fetchPackage(info: string | PackageInfo) {
             return fetchPackage(info);
         },
-        async loadPackages(packages: Record<string, string | PackageInfo>) {
-            return loadPackages(mo, packages);
+        async installPackages(packages: Record<string, string | PackageInfo>) {
+            return installPackages(mo, packages);
         },
-        addPackage(name: string, directory: string) {
-            debug('+package', name, directory);
+        loadPackage(pkg: Package) {
+            debug('+package', pkg.name);
+            mo.validatePackage(pkg);
+            const directory = `.node-motoko/${pkg.name}/${pkg.version}`;
+            Object.entries(pkg.files).forEach(([path, file]) => {
+                mo.write(`${directory}/${path}`, file.content);
+            });
+            mo.usePackage(pkg.name, directory);
+        },
+        usePackage(name: string, directory: string) {
+            debug('~package', name, directory);
             invoke('addPackage', false, [name, directory]);
         },
         clearPackages() {
             debug('-packages');
             invoke('clearPackage', false, []);
+        },
+        validatePackage(pkg: Package) {
+            validatePackage(pkg);
         },
         setAliases(aliases: Record<string, string>) {
             debug('aliases', aliases);
@@ -129,11 +148,18 @@ export default function wrapMotoko(compiler: Compiler, version: string) {
             }
             return invoke('compileWasm', true, [mode, path]);
         },
-        parseMotoko(content: string): object {
-            return invoke('parseMotoko', true, [content]);
+        parseMotoko(content: string): Node {
+            const ast = invoke('parseMotoko', true, [content]);
+            return simplifyAST(ast);
         },
-        parseMotokoTypes(content: string): { ast: object; outputType: object } {
-            return invoke('parseMotokoTypes', true, [content]);
+        parseMotokoTypes(content: string): { ast: Node; outputType: Node } {
+            const { ast, outputType } = invoke('parseMotokoTypes', true, [
+                content,
+            ]);
+            return {
+                ast: simplifyAST(ast),
+                outputType: simplifyAST(outputType),
+            };
         },
         parseCandid(content: string): object {
             return invoke('parseCandid', true, [content]);
