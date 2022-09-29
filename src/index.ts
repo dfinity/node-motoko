@@ -113,7 +113,7 @@ export default function wrapMotoko(compiler: Compiler, version: string) {
             mo.usePackage(pkg.name, directory);
         },
         usePackage(name: string, directory: string) {
-            debug('~package', name, directory);
+            debug('@package', name, directory);
             invoke('addPackage', false, [name, directory]);
         },
         clearPackages() {
