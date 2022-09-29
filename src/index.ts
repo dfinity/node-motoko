@@ -152,13 +152,11 @@ export default function wrapMotoko(compiler: Compiler, version: string) {
             const ast = invoke('parseMotoko', true, [content]);
             return simplifyAST(ast);
         },
-        parseMotokoTypes(content: string): { ast: Node; outputType: Node } {
-            const { ast, outputType } = invoke('parseMotokoTypes', true, [
-                content,
-            ]);
+        parseMotokoTyped(content: string): { ast: Node; type: Node } {
+            const { ast, typ } = invoke('parseMotokoTyped', true, [content]);
             return {
                 ast: simplifyAST(ast),
-                outputType: simplifyAST(outputType),
+                type: simplifyAST(typ),
             };
         },
         parseCandid(content: string): object {

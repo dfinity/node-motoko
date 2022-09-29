@@ -103,7 +103,8 @@ mo.delete(path)
 mo.list(path)
 
 // Fetch a package from GitHub or jsDelivr
-await mo.fetchPackage({name: '', repo: ''});
+await mo.fetchPackage({name: '', repo: '', version: '', dir: ''});
+await mo.fetchPackage('dfinity/motoko-base/master/src');
 
 // Try to fetch and load packages from GitHub or jsDelivr
 await mo.installPackages({ [packageName]: repositoryPath, ... })
@@ -144,7 +145,7 @@ mo.wasm(path, 'wasi') // WASI interface format
 mo.parseMotoko(motokoString)
 
 // Return the parse tree (with types) for a Motoko string
-mo.parseMotokoTypes(motokoString)
+mo.parseMotokoTyped(motokoString)
 
 // Return the parse tree for a Candid string
 mo.parseCandid(candidString)

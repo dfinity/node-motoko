@@ -24,6 +24,5 @@ mo.loadPackage(
     require('../../vscode-motoko/src/generated/baseLibrary.json'),
 );
 file.write('import Debug "mo:base/Debug"; Debug');
-console.log(file.parseMotoko())/////
-// const motokoTypes = file.parseMotokoTypes();
-// console.log('Motoko AST with types:', JSON.stringify(motokoTypes, null, 1));
+const motokoTypes = file.parseMotokoTyped();
+console.log('Motoko AST with types:', JSON.stringify(motokoTypes, null, 1));
