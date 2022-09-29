@@ -94,8 +94,11 @@ export default function wrapMotoko(compiler: Compiler, version: string) {
         list(directory: string): string[] {
             return invoke('readDir', false, [directory]);
         },
-        async fetchPackage(info: string | PackageInfo) {
-            return fetchPackage(info);
+        async fetchPackage(name:string, info: string | PackageInfo) {
+            if(!info){
+                throw new Error('Please specify both a name and source');
+            }
+            return fetchPackage(name,info);
         },
         async installPackages(packages: Record<string, string | PackageInfo>) {
             return installPackages(mo, packages);

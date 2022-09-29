@@ -103,8 +103,8 @@ mo.delete(path)
 mo.list(path)
 
 // Fetch a package from GitHub or jsDelivr
-await mo.fetchPackage({name: '', repo: '', version: '', dir: ''});
-await mo.fetchPackage('dfinity/motoko-base/master/src');
+await mo.fetchPackage(name, source);
+await mo.fetchPackage('base', 'dfinity/motoko-base/master/src');
 
 // Try to fetch and load packages from GitHub or jsDelivr
 await mo.installPackages({ [packageName]: repositoryPath, ... })

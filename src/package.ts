@@ -280,6 +280,7 @@ async function fetchFromService(
 }
 
 export async function fetchPackage(
+    name: string,
     info: string | PackageInfo,
 ): Promise<Package | undefined> {
     if (typeof info === 'string') {
@@ -290,7 +291,7 @@ export async function fetchPackage(
         return;
     }
     return {
-        name: info.name,
+        name,
         version: info.version,
         files,
     };
