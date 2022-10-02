@@ -20,9 +20,7 @@ actor Main {
 // const motokoTypes = file.parseMotokoTypes();
 // console.log('Motoko AST with types:', JSON.stringify(motokoTypes, null, 1));
 
-mo.loadPackage(
-    require('../../vscode-motoko/src/generated/baseLibrary.json'),
-);
+mo.loadPackage(require('../packages/latest/base.json'));
 file.write('import Debug "mo:base/Debug"; Debug');
 const result = file.parseMotokoTyped();
 console.log('Motoko AST with types:', JSON.stringify(result, null, 1));

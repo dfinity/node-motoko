@@ -21,6 +21,9 @@ export const file = (mo: Motoko, path: string) => {
         get path(): string {
             return path;
         },
+        set path(newPath) {
+            path = newPath;
+        },
         // file(subPath) {
         //     subPath = getValidPath(subPath);
         //     return exports.file(`${path}/${subPath}`);
@@ -57,14 +60,14 @@ export const file = (mo: Motoko, path: string) => {
         wasm(mode: WasmMode) {
             return mo.wasm(path, mode);
         },
+        parseCandid() {
+            return mo.parseCandid(result.read());
+        },
         parseMotoko() {
             return mo.parseMotoko(result.read());
         },
         parseMotokoTyped() {
-            return mo.parseMotokoTyped(result.read());
-        },
-        parseCandid() {
-            return mo.parseCandid(result.read());
+            return mo.parseMotokoTyped([path]);
         },
     };
     return result;
