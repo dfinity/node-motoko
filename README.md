@@ -145,7 +145,7 @@ mo.wasm(path, 'wasi') // WASI interface format
 mo.parseMotoko(motokoString)
 
 // Return the parse tree (with types) for a Motoko string
-mo.parseMotokoTyped(motokoString)
+mo.parseMotokoTyped(path)
 
 // Return the parse tree for a Candid string
 mo.parseCandid(candidString)
@@ -207,7 +207,7 @@ file.wasm('wasi') // note: cannot contain actors
 file.parseMotoko()
 
 // Parse the file (with types) as a Motoko program
-file.parseMotokoTypes()
+file.parseMotokoTyped()
 
 // Parse the file as a Candid interface
 file.parseCandid()
