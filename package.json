@@ -53,7 +53,8 @@
         "src/**/*",
         "lib/**/*",
         "contrib/**/*",
-        "versions/latest/**/*"
+        "versions/latest/**/*",
+        "packages/latest/**/*"
     ],
     "keywords": [
         "motoko",

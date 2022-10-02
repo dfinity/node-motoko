@@ -4,12 +4,15 @@ const fs = require('fs');
 const { resolve } = require('path');
 const { exec } = require('child_process');
 
+// Generate Motoko compiler bindings
+
 const motokoRepoPath =
     process.env.MOTOKO_REPO || resolve(__dirname, '../../motoko');
 
 exec(`cd "${motokoRepoPath}" && nix-build -A js`, (err, stdout, stderr) => {
     if (err) {
-        throw err;
+        console.error(err);
+        exit(1);
     }
     console.log(stdout);
     console.error(stderr);
@@ -29,4 +32,29 @@ exec(`cd "${motokoRepoPath}" && nix-build -A js`, (err, stdout, stderr) => {
         fs.unlinkSync(dest);
         fs.copyFileSync(`${line}/bin/${target}.min.js`, dest);
     }
+});
+
+// Download base library
+
+const { fetchPackage } = require('../lib/package');
+const { exit } = require('process');
+
+(async () => {
+    const basePackage = await fetchPackage(
+        'base',
+        'dfinity/motoko-base/master/src',
+    );
+    if (
+        basePackage.version !== 'master' ||
+        !Object.entries(basePackage.files).length
+    ) {
+        throw new Error('Unexpected package format');
+    }
+    fs.writeFileSync(
+        __dirname + '/../packages/latest/base.json',
+        JSON.stringify(basePackage),
+    );
+})().catch((err) => {
+    console.error(err);
+    process.exit(1);
 });
