@@ -1,4 +1,4 @@
-import { Node, simplifyAST } from './ast';
+import { Node, simplifyAST, CompilerAST, CompilerNode } from './ast';
 import { file } from './file';
 import {
     fetchPackage,
@@ -11,9 +11,9 @@ import { resolveMain, resolveLib } from './utils/resolveEntryPoint';
 
 export type Motoko = ReturnType<typeof wrapMotoko>;
 
-type Compiler = any; // TODO
+type Compiler = any; // TODO: generate from `js_of_ocaml`?
 
-// TODO
+// TODO: compatibility with the VS Code or Monaco `Diagnostic` type
 export type Diagnostic = {
     code?: string | number | { target: any; value: string | number };
     message: string;
@@ -68,6 +68,26 @@ export default function wrapMotoko(compiler: Compiler, version: string) {
         return result.code;
     };
 
+    // Function signatures for `mo.parseMotokoTyped()`
+    type ParseMotokoTypedResult = { ast: Node; type: Node };
+    function parseMotokoTyped(paths: string): ParseMotokoTypedResult;
+    function parseMotokoTyped(paths: string[]): ParseMotokoTypedResult[];
+    function parseMotokoTyped(
+        paths: string | string[],
+    ): ParseMotokoTypedResult | ParseMotokoTypedResult[] {
+        if (typeof paths === 'string') {
+            return mo.parseMotokoTyped([paths])[0];
+        }
+        return invoke('parseMotokoTyped', true, [paths]).map(
+            ({ ast, typ }: { ast: CompilerNode; typ: CompilerNode }) => {
+                return {
+                    ast: simplifyAST(ast),
+                    type: simplifyAST(typ),
+                };
+            },
+        );
+    }
+
     const mo = {
         version,
         compiler,
@@ -94,11 +114,11 @@ export default function wrapMotoko(compiler: Compiler, version: string) {
         list(directory: string): string[] {
             return invoke('readDir', false, [directory]);
         },
-        async fetchPackage(name:string, info: string | PackageInfo) {
-            if(!info){
+        async fetchPackage(name: string, info: string | PackageInfo) {
+            if (!info) {
                 throw new Error('Please specify both a name and source');
             }
-            return fetchPackage(name,info);
+            return fetchPackage(name, info);
         },
         async installPackages(packages: Record<string, string | PackageInfo>) {
             return installPackages(mo, packages);
@@ -151,20 +171,14 @@ export default function wrapMotoko(compiler: Compiler, version: string) {
             }
             return invoke('compileWasm', true, [mode, path]);
         },
+        parseCandid(content: string): object {
+            return invoke('parseCandid', true, [content]);
+        },
         parseMotoko(content: string): Node {
             const ast = invoke('parseMotoko', true, [content]);
             return simplifyAST(ast);
         },
-        parseMotokoTyped(content: string): { ast: Node; type: Node } {
-            const { ast, typ } = invoke('parseMotokoTyped', true, [content]);
-            return {
-                ast: simplifyAST(ast),
-                type: simplifyAST(typ),
-            };
-        },
-        parseCandid(content: string): object {
-            return invoke('parseCandid', true, [content]);
-        },
+        parseMotokoTyped,
         resolveMain(directory: string = ''): string | undefined {
             return resolveMain(mo, directory);
         },

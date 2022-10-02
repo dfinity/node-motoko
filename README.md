@@ -141,14 +141,15 @@ mo.candid(path)
 mo.wasm(path, 'ic') // IC interface format (default)
 mo.wasm(path, 'wasi') // WASI interface format
 
+// Return the parse tree for a Candid string
+mo.parseCandid(candidString)
+
 // Return the parse tree for a Motoko string
 mo.parseMotoko(motokoString)
 
-// Return the parse tree (with types) for a Motoko string
-mo.parseMotokoTyped(motokoString)
-
-// Return the parse tree for a Candid string
-mo.parseCandid(candidString)
+// Return the typed parse tree for a Motoko file path (or array of paths)
+mo.parseMotokoTyped(path)
+mo.parseMotokoTyped(paths = [...])
 
 // Find the 'Main.mo' file or an equivalent canister entry point
 mo.resolveMain(directory = '')
@@ -206,9 +207,9 @@ file.wasm('wasi') // note: cannot contain actors
 // Parse the file as a Motoko program
 file.parseMotoko()
 
-// Parse the file (with types) as a Motoko program
-file.parseMotokoTypes()
-
 // Parse the file as a Candid interface
 file.parseCandid()
+
+// Parse the file (with types) as a Motoko program
+file.parseMotokoTyped()
 ```
