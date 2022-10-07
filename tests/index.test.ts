@@ -25,6 +25,25 @@ describe('check', () => {
     });
 });
 
+describe('deterministic', () => {
+    test('results in the same module_hash', () => {
+        const path = 'test__check__.mo';
+        mo.write(path, actor);
+        expect(mo.check(path)).toStrictEqual([]);
+
+        const compile = (code : any) => {
+            let f = mo.file("IC.mo")
+            f.write(code)
+            return f.wasm("ic");
+        }
+        
+        let a = compile(actor);
+        let b = compile(actor);
+        expect(a.wasm).toEqual(b.wasm);
+
+    });
+});
+
 describe('run', () => {
     test('works for a basic example', () => {
         const path = 'test__run__.mo';
