@@ -122,7 +122,8 @@ mo.clearPackages()
 mo.validatePackage(package)
 
 // Configure the compiler to resolve `import "canister:{alias}";` -> `import "canister:{id}";`
-mo.setAliases({ alias: id, ... })
+// `directory` should contain `*.did` files for canister dependencies
+mo.setAliases(directory, { alias: id, ... })
 
 // Set the public metadata (an array of strings) used by the compiler
 mo.setMetadata(strings)

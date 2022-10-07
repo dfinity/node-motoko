@@ -28,15 +28,11 @@ export type Diagnostic = {
 
 export type WasmMode = 'ic' | 'wasi';
 
-export default function wrapMotoko(compiler: Compiler, version: string) {
+export default function wrapMotoko(compiler: Compiler) {
+    const version = compiler.version || '(unknown)';
     const debug = require('debug')(`motoko:${version}`);
 
     const invoke = (key: string, unwrap: boolean, args: any[]) => {
-        if (!compiler) {
-            throw new Error(
-                'Please load a Motoko compiler before running this function',
-            );
-        }
         if (typeof compiler[key] !== 'function') {
             throw new Error(`Unknown compiler function: '${key}'`);
         }
@@ -143,8 +139,9 @@ export default function wrapMotoko(compiler: Compiler, version: string) {
         validatePackage(pkg: Package) {
             validatePackage(pkg);
         },
-        setAliases(aliases: Record<string, string>) {
-            debug('aliases', aliases);
+        setAliases(directory: string, aliases: Record<string, string>) {
+            debug('aliases', directory, aliases);
+            invoke('setCandidPath', false, [directory]);
             invoke('setActorAliases', false, [Object.entries(aliases)]);
         },
         setMetadata(values: string) {
