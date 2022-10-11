@@ -20,7 +20,7 @@ export interface Node extends Source {
     file?: string;
     start?: Span;
     end?: Span;
-    type?: Node;
+    type?: string;
     declaration?: Source;
     args?: AST[];
 }
@@ -58,13 +58,13 @@ export function simplifyAST(ast: CompilerAST): AST {
         };
     }
     if (ast.name === ':') {
-        const [typeAst, type] = ast.args as [CompilerAST, CompilerNode];
+        const [typeAst, type] = ast.args as [CompilerAST, string];
         // console.log(typeAst); ////
         return {
             ...(typeof typeAst === 'string'
                 ? { name: typeAst }
                 : simplifyAST(typeAst)),
-            type: simplifyAST(type),
+            type,
         };
     }
     return {
