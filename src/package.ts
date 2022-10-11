@@ -26,126 +26,6 @@ export interface PackageFile {
     content: string;
 }
 
-// TODO: call `fetchPackage` instead of deprecated functions
-async function loadPackage(mo: Motoko, info: PackageInfo) {
-    if (
-        !info.repo.startsWith('https://github.com/') ||
-        !info.repo.endsWith('.git')
-    ) {
-        return false;
-    }
-    const repo = {
-        name: info.name,
-        version: info.version,
-        repo: info.repo.slice(0, -4).replace(/^(https:\/\/github.com\/)/, ''),
-        branch: info.version,
-        dir: info.dir || 'src',
-    };
-    const result = await fetchGithub_(mo, repo, info.name);
-    if (result) {
-        mo.usePackage(info.name, info.name + '/');
-    }
-    return result ? true : false;
-}
-
-/** @deprecated */
-async function fetchGithub_(mo: Motoko, info: PackageInfo, directory = '') {
-    const possiblyCDN = !(
-        (info.branch.length % 2 === 0 && /^[A-F0-9]+$/i.test(info.branch)) ||
-        info.branch === 'master' ||
-        info.branch === 'main'
-    );
-    if (possiblyCDN) {
-        const result = await fetchFromCDN_(mo, info, directory);
-        if (result) {
-            return result;
-        }
-    }
-    return await fetchFromGithub_(mo, info, directory);
-}
-
-// function saveWorkplaceToMotoko(mo, files) {
-//     for (const [name, code] of Object.entries(files)) {
-//         if (!name.endsWith('mo')) continue;
-//         mo.addFile(name, code);
-//     }
-// }
-
-/** @deprecated */
-async function fetchFromCDN_(mo: Motoko, info: PackageInfo, directory = '') {
-    const meta_url = `https://data.jsdelivr.com/v1/package/gh/${info.repo}@${info.branch}/flat`;
-    const base_url = `https://cdn.jsdelivr.net/gh/${info.repo}@${info.branch}`;
-    const response = await fetch(meta_url);
-    const json = await response.json();
-    if (!json.hasOwnProperty('files')) {
-        throw new Error(json.message || `Could not fetch from CDN: ${info}`);
-    }
-    const promises: Promise<void>[] = [];
-    const files: Record<string, string> = {};
-    for (const f of json.files) {
-        if (f.name.startsWith(`/${info.dir}/`) && /\.mo$/.test(f.name)) {
-            const promise = (async () => {
-                const content = await (await fetch(base_url + f.name)).text();
-                const stripped =
-                    directory +
-                    f.name.slice(info.dir ? info.dir.length + 1 : 0);
-                mo.write(stripped, content);
-                files[stripped] = content;
-            })();
-            promises.push(promise);
-        }
-    }
-    if (!promises.length) {
-        return;
-    }
-    return Promise.all(promises).then(() => {
-        return files;
-    });
-}
-
-/** @deprecated */
-async function fetchFromGithub_(
-    mo: Motoko,
-    info: PackageInfo,
-    directory: string = '',
-) {
-    const meta_url = `https://api.github.com/repos/${info.repo}/git/trees/${info.branch}?recursive=1`;
-    const base_url = `https://raw.githubusercontent.com/${info.repo}/${info.branch}/`;
-    const response = await fetch(meta_url);
-    const json = await response.json();
-    if (!json.hasOwnProperty('tree')) {
-        throw new Error(
-            json.message || `Could not fetch from GitHub repository: ${info}`,
-        );
-    }
-    const promises: Promise<void>[] = [];
-    const files: Record<string, string> = {};
-    for (const f of json.tree) {
-        if (
-            f.path.startsWith(info.dir ? `${info.dir}/` : '') &&
-            f.type === 'blob' &&
-            /\.mo$/.test(f.path)
-        ) {
-            const promise = (async () => {
-                const content = await (await fetch(base_url + f.path)).text();
-                const stripped =
-                    directory +
-                    (directory ? '/' : '') +
-                    f.path.slice(info.dir ? info.dir.length + 1 : 0);
-                mo.write(stripped, content);
-                files[stripped] = content;
-            })();
-            promises.push(promise);
-        }
-    }
-    if (!promises.length) {
-        return;
-    }
-    return Promise.all(promises).then(() => {
-        return files;
-    });
-}
-
 function parseGithubPackageInfo(path: string | PackageInfo): PackageInfo {
     if (!path) {
         return;
@@ -302,12 +182,10 @@ export async function installPackages(
     packages: Record<string, string | PackageInfo>,
 ) {
     await Promise.all(
-        Object.entries(packages).map(([name, path]) => {
-            const info = {
-                ...parseGithubPackageInfo(path),
-                name,
-            };
-            return loadPackage(mo, info);
+        Object.entries(packages).map(async ([name, info]) => {
+            const pkg = await fetchPackage(name, info);
+            mo.loadPackage(pkg);
+            return pkg;
         }),
     );
 }
