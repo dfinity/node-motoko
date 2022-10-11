@@ -1,5 +1,7 @@
 'use strict';
 
+const { keywords, typeKeywords } = require('../lib/keywords');
+
 /// Monaco editor configuration
 exports.configure = (monaco) => {
     monaco.languages.register({ id: 'motoko' });
@@ -25,12 +27,7 @@ exports.configure = (monaco) => {
         defaultToken: '',
         tokenPostfix: '.mo',
         // prettier-ignore
-        keywords: [
-            'actor', 'and', 'async', 'assert', 'await', 'break', 'case', 'catch', 'class',
-            'continue', 'debug', 'debug_show', 'do', 'else', 'false', 'flexible', 'for', 'from_candid', 'func', 'if', 'ignore', 'in',
-            'import', 'label', 'let', 'loop', 'module', 'not', 'null', 'object', 'or', 'private', 'public', 'query', 'return', 'shared',
-            'stable', 'switch', 'system', 'throw', 'to_candid', 'true', 'try', 'type', 'var', 'while', 'with',
-        ],
+        keywords,
         accessmodifiers: [
             'public',
             'private',
@@ -41,10 +38,7 @@ exports.configure = (monaco) => {
             'system',
         ],
         // prettier-ignore
-        typeKeywords: [
-            'Any', 'None', 'Null', 'Bool', 'Int', 'Int8', 'Int16', 'Int32', 'Int64', 'Nat',
-            'Nat8', 'Nat16', 'Nat32', 'Nat64', 'Float', 'Char', 'Text', 'Blob', 'Error', 'Principal',
-        ],
+        typeKeywords,
         // prettier-ignore
         operators: [
             '=', '<', '>', ':', '<:', '?', '+', '-', '*', '/', '%', '**', '+%', '-%', '*%', '**%', '&', '|', '^', '<<', '>>', '<<>', '<>>',

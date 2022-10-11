@@ -1,5 +1,9 @@
 'use strict';
 
+const { keywords, typeKeywords } = require('../lib/keywords');
+
+const literalKeywords = ['true', 'false', 'null'];
+
 /// Highlight.js configuration
 exports.configure = (hljs) => {
     var string = {
@@ -25,25 +29,19 @@ exports.configure = (hljs) => {
         ],
         relevance: 0,
     };
-    hljs.registerLanguage('motoko', function (hljs) {
+    hljs.registerLanguage('motoko', (hljs) => {
         return {
             name: 'Motoko',
             aliases: ['mo'],
             keywords: {
                 $pattern: '[a-zA-Z_]\\w*',
-                keyword:
-                    'actor and await break case catch class' +
-                    ' continue debug do else for func if in import' +
-                    ' module not object or label let loop private' +
-                    ' public return shared try throw query switch' +
-                    ' type var while stable flexible system debug_show' +
-                    ' assert ignore from_candid to_candid with',
-                literal: 'true false null',
-                built_in:
-                    'Any None Null Bool Int Int8 Int16 Int32 Int64' +
-                    ' Nat Nat8 Nat16 Nat32 Nat64 Word8 Word16 Word32 Word64' +
-                    ' Float Char Text Blob Error Principal' +
-                    ' async',
+                keyword: keywords
+                    .filter(
+                        (k) => !literalKeywords.includes(k) && k !== 'async',
+                    )
+                    .join(' '),
+                literal: literalKeywords.join(' '),
+                built_in: `async ${typeKeywords.join(' ')}`,
             },
             illegal: '</',
             contains: [
@@ -92,7 +90,7 @@ exports.configure = (hljs) => {
             ],
         };
     });
-    hljs.registerLanguage('candid', function (hljs) {
+    hljs.registerLanguage('candid', (hljs) => {
         return {
             name: 'Candid',
             aliases: ['did'],
