@@ -9,12 +9,19 @@ export interface CompilerNode {
 export type Span = [number, number];
 export type AST = AST[] | Node | string | null;
 
-export interface Node {
+export interface Source {
+    file?: string;
+    start?: Span;
+    end?: Span;
+}
+
+export interface Node extends Source {
     name: string;
     file?: string;
     start?: Span;
     end?: Span;
     type?: Node;
+    declaration?: Source;
     args?: AST[];
 }
 
@@ -51,12 +58,12 @@ export function simplifyAST(ast: CompilerAST): AST {
         };
     }
     if (ast.name === ':') {
-        const [type, subAst] = ast.args as [CompilerNode, CompilerAST];
-        // console.log(subAst); ////
+        const [typeAst, type] = ast.args as [CompilerAST, CompilerNode];
+        // console.log(typeAst); ////
         return {
-            ...(typeof subAst === 'string'
-                ? { name: subAst }
-                : simplifyAST(subAst)),
+            ...(typeof typeAst === 'string'
+                ? { name: typeAst }
+                : simplifyAST(typeAst)),
             type: simplifyAST(type),
         };
     }
