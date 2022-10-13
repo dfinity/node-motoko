@@ -10,16 +10,13 @@ export type Span = [number, number];
 export type AST = AST[] | Node | string | null;
 
 export interface Source {
-    file?: string;
-    start?: Span;
-    end?: Span;
+    file: string;
+    start: Span;
+    end: Span;
 }
 
-export interface Node extends Source {
+export interface Node extends Partial<Source> {
     name: string;
-    file?: string;
-    start?: Span;
-    end?: Span;
     type?: string;
     declaration?: Source;
     args?: AST[];
@@ -48,18 +45,21 @@ export function simplifyAST(ast: CompilerAST): AST {
             CompilerSpan,
             CompilerAST,
         ];
-        return {
+        const node: Node = {
             ...(typeof subAst === 'string'
                 ? { name: subAst }
-                : simplifyAST(subAst)),
-            file: start.args[0],
+                : simplifyAST(subAst as any as CompilerNode)),
             start: [+start.args[1], +start.args[2]],
             end: [+end.args[1], +end.args[2]],
         };
+        const file = start.args[0];
+        if (file) {
+            node.file = file;
+        }
+        return node;
     }
     if (ast.name === ':') {
         const [typeAst, type] = ast.args as [CompilerAST, string];
-        // console.log(typeAst); ////
         return {
             ...(typeof typeAst === 'string'
                 ? { name: typeAst }
