@@ -22,12 +22,6 @@ export interface Node extends Partial<Source> {
     args?: AST[];
 }
 
-// export type TypeAST = AST[] | Node | string | number | null;
-// export type TypeNode = {
-//     name: string;
-//     args: TypeAST[];
-// };
-
 export function simplifyAST(ast: CompilerNode): Node;
 export function simplifyAST(ast: CompilerAST[]): AST[];
 export function simplifyAST<T extends CompilerAST>(ast: T): T;
@@ -72,5 +66,3 @@ export function simplifyAST(ast: CompilerAST): AST {
         args: simplifyAST(ast.args),
     };
 }
-
-// export function getTypeString(type: Type) {}
