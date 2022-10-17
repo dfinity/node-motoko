@@ -12,7 +12,7 @@ const motokoRepoPath =
 exec(`cd "${motokoRepoPath}" && nix-build -A js`, (err, stdout, stderr) => {
     if (err) {
         console.error(err);
-        exit(1);
+        process.exit(1);
     }
     console.log(stdout);
     console.error(stderr);
@@ -37,7 +37,6 @@ exec(`cd "${motokoRepoPath}" && nix-build -A js`, (err, stdout, stderr) => {
 // Download base library
 
 const { fetchPackage } = require('../lib/package');
-const { exit } = require('process');
 
 (async () => {
     const basePackage = await fetchPackage(
