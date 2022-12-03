@@ -44,7 +44,8 @@
             "type"
         ],
         "body": [
-            "type ${1:Name} = ${2:declaration};"
+            "type ${1:Name} = ${2:declaration};",
+            "$0"
         ],
         "description": "simple type declaration"
     },
@@ -55,7 +56,8 @@
         "body": [
             "type ${1:Name} = {",
             "\t${2:attribute} : ${3:Type};",
-            "};"
+            "};",
+            "$0"
         ],
         "description": "object / record type block"
     },
@@ -66,7 +68,8 @@
         "body": [
             "type ${1:Name} = {",
             "\t#${2:tag};",
-            "};"
+            "};",
+            "$0"
         ],
         "description": "variant type block"
     },
@@ -75,7 +78,8 @@
             "var"
         ],
         "body": [
-            "var ${1:name} = ${2:value};"
+            "var ${1:name} = ${2:value};",
+            "$0"
         ],
         "description": "declare a mutable variable"
     },
@@ -84,7 +88,8 @@
             "let"
         ],
         "body": [
-            "let ${1:name} = ${2:value};"
+            "let ${1:name} = ${2:value};",
+            "$0"
         ],
         "description": "declare an immutable variable"
     },
@@ -115,7 +120,8 @@
             "import-base"
         ],
         "body": [
-            "import ${1:Module} \"mo:base/${1}\";"
+            "import ${1:Module} \"mo:base/${1}\";",
+            "$0"
         ]
     },
     "Canister Import": {
@@ -123,7 +129,8 @@
             "import-canister"
         ],
         "body": [
-            "import ${1:Module} \"canister:${2}\";"
+            "import ${1:Module} \"canister:${2}\";",
+            "$0"
         ]
     },
     "Switch Statement": {
@@ -268,7 +275,8 @@
             "array-new"
         ],
         "body": [
-            "var ${1:array} = [];"
+            "var ${1:array} = [];",
+            "$0"
         ]
     },
     "New Hash Map": {
@@ -276,7 +284,8 @@
             "hash-map-new"
         ],
         "body": [
-            "let ${1:map} = HashMap.HashMap<${2:Text}, ${3:Nat}>(0, ${2}.equal, ${2}.hash);"
+            "let ${1:map} = HashMap.HashMap<${2:Text}, ${3:Nat}>(0, ${2}.equal, ${2}.hash);",
+            "$0"
         ]
     },
     "New Trie": {
@@ -284,7 +293,8 @@
             "trie-new"
         ],
         "body": [
-            "var ${1:trie} = Trie.empty<${2:Text}, ${3:Nat}>();"
+            "var ${1:trie} = Trie.empty<${2:Text}, ${3:Nat}>();",
+            "$0"
         ]
     },
     "New Trie Map": {
@@ -292,7 +302,8 @@
             "trie-map-new"
         ],
         "body": [
-            "let ${1:map} = TrieMap.TrieMap<${2:Text}, ${3:Nat}>(0);"
+            "let ${1:map} = TrieMap.TrieMap<${2:Text}, ${3:Nat}>(0);",
+            "$0"
         ]
     },
     "New RB Tree": {
@@ -300,7 +311,8 @@
             "rb-tree-new"
         ],
         "body": [
-            "let ${1:map} = RBTree.RBTree<${2:Text}, ${3:Nat}>(${2}.compare);"
+            "let ${1:map} = RBTree.RBTree<${2:Text}, ${3:Nat}>(${2}.compare);",
+            "$0"
         ]
     },
     "New Trie Set": {
@@ -308,7 +320,8 @@
             "trie-set-new"
         ],
         "body": [
-            "let ${1:set} = TrieSet.empty<${2:Text}>();"
+            "let ${1:set} = TrieSet.empty<${2:Text}>();",
+            "$0"
         ]
     },
     "New Deque": {
@@ -316,7 +329,8 @@
             "deque-new"
         ],
         "body": [
-            "let ${1:queue} = Deque.empty<${2:Text}>();"
+            "let ${1:queue} = Deque.empty<${2:Text}>();",
+            "$0"
         ]
     },
     "New List": {
@@ -324,7 +338,8 @@
             "list-new"
         ],
         "body": [
-            "var ${1:list} = List.nil<${2:Text}>();"
+            "var ${1:list} = List.nil<${2:Text}>();",
+            "$0"
         ]
     },
     "Sort Array": {
