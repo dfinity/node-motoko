@@ -18,6 +18,7 @@ export interface Source {
 export interface Node extends Partial<Source> {
     name: string;
     type?: string;
+    doc?: string;
     declaration?: Source;
     args?: AST[];
 }
@@ -59,6 +60,15 @@ export function simplifyAST(ast: CompilerAST): AST {
                 ? { name: typeAst }
                 : simplifyAST(typeAst)),
             type,
+        };
+    }
+    if (ast.name === '*') {
+        const [doc, docAst] = ast.args as [string, CompilerAST];
+        return {
+            ...(typeof docAst === 'string'
+                ? { name: docAst }
+                : simplifyAST(docAst)),
+            doc,
         };
     }
     return {
