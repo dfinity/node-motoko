@@ -1,9 +1,10 @@
 'use strict';
 
 const { keywords, typeKeywords } = require('../lib/keywords');
+const snippetConfig = require('./snippets.json');
 
 /// Monaco editor configuration
-exports.configure = (monaco) => {
+exports.configure = (monaco, { snippets } = {}) => {
     monaco.languages.register({ id: 'motoko' });
     monaco.languages.setLanguageConfiguration('motoko', {
         comments: {
@@ -121,4 +122,32 @@ exports.configure = (monaco) => {
             ],
         },
     });
+
+    if (snippets) {
+        monaco.languages.registerCompletionItemProvider('motoko', {
+            provideCompletionItems() {
+                return {
+                    suggestions: Object.entries(snippetConfig).map(
+                        ([name, snippet]) => {
+                            return {
+                                label:
+                                    typeof snippet.prefix === 'string'
+                                        ? snippet.prefix
+                                        : snippet.prefix[0],
+                                detail: name,
+                                insertText:
+                                    typeof snippet.body === 'string'
+                                        ? snippet.body
+                                        : snippet.body.join('\n'),
+                                // insert as snippet (https://microsoft.github.io/monaco-editor/api/enums/monaco.languages.CompletionItemInsertTextRule.html)
+                                insertTextRules: 4,
+                                // snippet completion (https://microsoft.github.io/monaco-editor/api/enums/monaco.languages.CompletionItemKind.html)
+                                kind: 27,
+                            };
+                        },
+                    ),
+                };
+            },
+        });
+    }
 };
