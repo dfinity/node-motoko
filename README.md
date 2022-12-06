@@ -121,12 +121,15 @@ mo.clearPackages()
 // Ensure that a package is correctly formatted
 mo.validatePackage(package)
 
-// Configure the compiler to resolve `import "canister:{alias}";` -> `import "canister:{id}";`
+// Configure the compiler to resolve `import "mo:{alias}";` -> `import "canister:{id}";`
 // `directory` should contain `*.did` files for canister dependencies
 mo.setAliases(directory, { alias: id, ... })
 
 // Set the public metadata (an array of strings) used by the compiler
 mo.setMetadata(strings)
+
+// Set the maximum number of interpreter steps before cancelling a `run()` invocation
+mo.setRunStepLimit(limit)
 
 // Generate errors and warnings for a Motoko program
 mo.check(path)

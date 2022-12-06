@@ -147,6 +147,9 @@ export default function wrapMotoko(compiler: Compiler) {
         setMetadata(values: string) {
             invoke('setPublicMetadata', false, [values]);
         },
+        setRunStepLimit(limit: number) {
+            invoke('setRunStepLimit', false, [limit]);
+        },
         check(path: string): Diagnostic[] {
             const result = invoke('check', false, [path]);
             return result.diagnostics;
