@@ -34,25 +34,25 @@ module Interface {
 print(">>> value = " # debug_show Interface.value);
 `);
 
-const wasiResult = wasiFile.wasm('wasi');
-console.log('WASI:', wasiResult);
+// const wasiResult = wasiFile.wasm('wasi');
+// console.log('WASI:', wasiResult);
 
-(async () => {
-    const { init, WASI } = require('@wasmer/wasi');
+// (async () => {
+//     const { init, WASI } = require('@wasmer/wasi');
 
-    await init();
+//     await init();
 
-    const wasi = new WASI({});
+//     const wasi = new WASI({});
 
-    const module = await (WebAssembly.compileStreaming || WebAssembly.compile)(
-        wasiResult.wasm,
-    );
-    await wasi.instantiate(module, {});
-    let exitCode = wasi.start();
-    let stdout = wasi.getStdoutString();
-    let stderr = wasi.getStderrString();
+//     const module = await (WebAssembly.compileStreaming || WebAssembly.compile)(
+//         wasiResult.wasm,
+//     );
+//     await wasi.instantiate(module, {});
+//     let exitCode = wasi.start();
+//     let stdout = wasi.getStdoutString();
+//     let stderr = wasi.getStderrString();
 
-    console.log(stdout);
-    console.error(stderr);
-    console.log('Exit code:', exitCode);
-})();
+//     console.log(stdout);
+//     console.error(stderr);
+//     console.log('Exit code:', exitCode);
+// })();
