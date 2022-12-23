@@ -13,11 +13,12 @@ describe('fetchPackage', () => {
     //     // expect file in package
     // });
 
-    test('load base library', async () => {
-        await mo.installPackages({ base: 'dfinity/motoko-base/master/src' });
+    test('load base library', () => {
+        // await mo.installPackages({ base: 'dfinity/motoko-base/master/src' });
+        mo.loadPackage(require('../packages/latest/base.json'));
 
         const file = mo.file('Test.mo');
-        file.write('import Debug "mo:base/Debug"; Debug');
+        file.write('import Debug "mo:base/Debug"; Debug.print(debug_show 123)');
         file.run();
     });
 });
