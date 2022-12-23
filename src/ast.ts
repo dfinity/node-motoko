@@ -46,13 +46,12 @@ export function simplifyAST(ast: CompilerAST, parent?: Node | undefined): AST {
             CompilerSpan,
             CompilerAST,
         ];
-        const node: Node = {
-            ...(typeof subAst === 'string'
+        const node: Node =
+            typeof subAst === 'string'
                 ? { name: subAst }
-                : simplifyAST(subAst as any as CompilerNode, parent)),
-            start: [+start.args[1], +start.args[2]],
-            end: [+end.args[1], +end.args[2]],
-        };
+                : simplifyAST(subAst as any as CompilerNode, parent);
+        node.start = [+start.args[1], +start.args[2]];
+        node.end = [+end.args[1], +end.args[2]];
         const file = start.args[0];
         if (file) {
             node.file = file;
