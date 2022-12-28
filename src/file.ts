@@ -67,7 +67,7 @@ export const file = (mo: Motoko, path: string) => {
             return mo.parseMotoko(result.read());
         },
         parseMotokoTyped() {
-            return mo.parseMotokoTyped([path]);
+            return mo.parseMotokoTyped(path);
         },
     };
     return result;
