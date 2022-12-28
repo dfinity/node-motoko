@@ -24,6 +24,12 @@ export interface Node extends Partial<Source> {
     args?: AST[];
 }
 
+export function asNode(ast: AST | undefined): Node | undefined {
+    return ast && typeof ast === 'object' && !Array.isArray(ast)
+        ? ast
+        : undefined;
+}
+
 export function simplifyAST(ast: CompilerNode, parent?: Node | undefined): Node;
 export function simplifyAST(
     ast: CompilerAST[],
