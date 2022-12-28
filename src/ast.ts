@@ -25,9 +25,9 @@ export interface Node extends Partial<Source> {
 }
 
 export function asNode(ast: AST | undefined): Node | undefined {
-    return ast && typeof ast === 'object' && !Array.isArray(ast)
-        ? ast
-        : undefined;
+    if (ast && typeof ast === 'object' && !Array.isArray(ast)) {
+        return ast;
+    }
 }
 
 export function simplifyAST(ast: CompilerNode, parent?: Node | undefined): Node;
@@ -50,12 +50,12 @@ export function simplifyAST(ast: CompilerAST, parent?: Node | undefined): AST {
         const [start, end, subAst] = ast.args as [
             CompilerSpan,
             CompilerSpan,
-            CompilerAST,
+            CompilerNode,
         ];
-        const node: Node =
+        const node =
             typeof subAst === 'string'
-                ? { name: subAst }
-                : simplifyAST(subAst as any as CompilerNode, parent);
+                ? { name: subAst, parent }
+                : simplifyAST(subAst, parent);
         node.start = [+start.args[1], +start.args[2]];
         node.end = [+end.args[1], +end.args[2]];
         const file = start.args[0];
@@ -65,22 +65,22 @@ export function simplifyAST(ast: CompilerAST, parent?: Node | undefined): AST {
         return node;
     }
     if (ast.name === ':') {
-        const [typeAst, type] = ast.args as [CompilerAST, string];
-        return {
-            ...(typeof typeAst === 'string'
-                ? { name: typeAst }
-                : simplifyAST(typeAst, parent)),
-            type,
-        };
+        const [typeAst, type] = ast.args as [CompilerNode, string];
+        const node =
+            typeof typeAst === 'string'
+                ? { name: typeAst, parent }
+                : simplifyAST(typeAst, parent);
+        node.type = type;
+        return node;
     }
     if (ast.name === '*') {
-        const [doc, docAst] = ast.args as [string, CompilerAST];
-        return {
-            ...(typeof docAst === 'string'
-                ? { name: docAst }
-                : simplifyAST(docAst, parent)),
-            doc,
-        };
+        const [doc, docAst] = ast.args as [string, CompilerNode];
+        const node =
+            typeof docAst === 'string'
+                ? { name: docAst, parent }
+                : simplifyAST(docAst, parent);
+        node.doc = doc;
+        return node;
     }
     const node: Node = {
         name: ast.name,

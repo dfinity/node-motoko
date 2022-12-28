@@ -23,7 +23,11 @@ describe('ast', () => {
         });
     });
 
-    test('parent property in actor file', async () => {
+    test('parent property in typed AST', async () => {
+        mo.loadPackage(require('../packages/latest/base.json'));
+        const file = mo.file('AST.mo');
+        file.write(actorSource);
+
         const check = (node: Node) => {
             for (const arg of node.args || []) {
                 const argNode = asNode(arg);
@@ -33,7 +37,7 @@ describe('ast', () => {
                 }
             }
         };
-        const node = asNode(mo.parseMotoko(actorSource));
+        const node = asNode(file.parseMotokoTyped().ast);
         expect(node).toBeTruthy();
         check(node!);
     });
