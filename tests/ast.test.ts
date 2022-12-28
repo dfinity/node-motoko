@@ -1,8 +1,18 @@
 import mo from '../src/versions/moc';
-import { Node } from '../src/ast';
+import { Node, asNode, AST } from '../src/ast';
+
+const actorSource = `
+import { print } "mo:base/Debug";
+
+actor Main {
+    public query func test() : async Nat {
+        123
+    }
+};
+`;
 
 describe('ast', () => {
-    test('parent property', async () => {
+    test('parent property in expression', async () => {
         const ast = mo.parseMotoko('let x = 0; x');
         const args = ast.args!.filter(
             (arg) => arg && typeof arg === 'object' && !Array.isArray(arg),
@@ -11,5 +21,20 @@ describe('ast', () => {
         args.forEach((node) => {
             expect(node.parent).toBe(ast);
         });
+    });
+
+    test('parent property in actor file', async () => {
+        const check = (node: Node) => {
+            for (const arg of node.args || []) {
+                const argNode = asNode(arg);
+                if (argNode) {
+                    expect(argNode.parent).toBe(node);
+                    check(argNode);
+                }
+            }
+        };
+        const node = asNode(mo.parseMotoko(actorSource));
+        expect(node).toBeTruthy();
+        check(node!);
     });
 });
