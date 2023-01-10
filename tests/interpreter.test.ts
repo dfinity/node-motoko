@@ -1,22 +1,29 @@
 import mo from '../src/versions/interpreter';
 
+// Load base library
 mo.loadPackage(require('../packages/latest/base.json'));
 
+const testMotoko = (source: string) => {
+    const file = mo.file('__test__.mo');
+    file.write(source);
+    return file.run();
+};
+
 describe('run', () => {
-    test('works for a basic example', () => {
-        const path = 'test__run__.mo';
+    test('basic example', () => {
+        const path = '__test__basic.mo';
         mo.write(path, 'let x = 1 + 1; x');
-        expect(mo.run(path)).toStrictEqual({
+        const result = mo.run(path);
+        expect(result).toStrictEqual({
             result: 0,
             stdout: '2 : Nat\n',
             stderr: '',
         });
     });
 
-    test('works for a loop with many iterations', () => {
+    test('loop with many iterations', () => {
         const count = '10_000';
-        const file = mo.file('Main.mo');
-        file.write(`
+        const { stdout } = testMotoko(`
             import Iter "mo:base/Iter";
             var x = 0;
             for (i in Iter.range(0, ${count} - 1)) {
@@ -24,10 +31,6 @@ describe('run', () => {
             };
             x
         `);
-        const { stdout, stderr } = file.run();
-        if (stderr) {
-            console.error(stderr);
-        }
         expect(stdout).toEqual(`${count} : Nat\n`);
     });
 });
