@@ -33,4 +33,12 @@ describe('run', () => {
         `);
         expect(stdout).toEqual(`${count} : Nat\n`);
     });
+
+    test('Random module', () => {
+        const { stdout } = testMotoko(`
+            import Random "mo:base/Random";
+            Random.blob()
+        `);
+        expect(stdout).toMatch(/"[\\0-9A-Z]+" :\s+async<\$top-level> Blob/);
+    });
 });
