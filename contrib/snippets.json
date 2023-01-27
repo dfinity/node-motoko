@@ -421,5 +421,21 @@
         "body": [
             "Principal.fromActor(${1:actor})"
         ]
+    },
+    "Principal to Actor": {
+        "prefix": [
+            "principal-2-actor"
+        ],
+        "body": [
+            "actor (Principal.toText(${1:principal})) : actor { $2 }"
+        ]
+    },
+    "Text to Actor": {
+        "prefix": [
+            "text-2-actor"
+        ],
+        "body": [
+            "actor (${1:text})) : actor { $2 }"
+        ]
     }
 }
