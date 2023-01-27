@@ -397,7 +397,7 @@
             "set-timer"
         ],
         "body": [
-            "let ${$1:id} = Timer.setTimer(#seconds ${$2:0}, func () {",
+            "let ${1:id} = Timer.setTimer(#seconds ${2:0}, func () {",
             "\t$0",
             "});"
         ]
@@ -407,7 +407,7 @@
             "recurring-timer"
         ],
         "body": [
-            "let ${$1:id} = Timer.recurringTimer(#seconds ${$2:0}, func () {",
+            "let ${1:id} = Timer.recurringTimer(#seconds ${2:0}, func () {",
             "\t$0",
             "});"
         ]
