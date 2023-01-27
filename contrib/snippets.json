@@ -397,7 +397,7 @@
             "set-timer"
         ],
         "body": [
-            "let ${$1:id} = Timer.setTimer(#seconds ${$2:0}, func () {",
+            "let ${1:id} = Timer.setTimer(#seconds ${2:0}, func () {",
             "\t$0",
             "});"
         ]
@@ -407,7 +407,7 @@
             "recurring-timer"
         ],
         "body": [
-            "let ${$1:id} = Timer.recurringTimer(#seconds ${$2:0}, func () {",
+            "let ${1:id} = Timer.recurringTimer(#seconds ${2:0}, func () {",
             "\t$0",
             "});"
         ]
@@ -417,7 +417,7 @@
             "cancel-timer"
         ],
         "body": [
-            "Timer.cancelTimer(${$1:id});"
+            "Timer.cancelTimer(${1:id});"
         ]
     },
     "Array to Blob": {
@@ -481,7 +481,7 @@
             "principal-2-actor"
         ],
         "body": [
-            "actor (Principal.toText(${1:principal})) : actor { $2 }"
+            "actor (Principal.toText(${1:principal})) : actor { ${2:method} : ${3:()} -> async ${4:()} }"
         ]
     },
     "Text to Actor": {
@@ -489,7 +489,7 @@
             "text-2-actor"
         ],
         "body": [
-            "actor (${1:text}) : actor { $2 }"
+            "actor (${1:text}) : actor { ${2:method} : ${3:()} -> async ${4:()} }"
         ]
     }
 }
