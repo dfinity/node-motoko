@@ -435,7 +435,7 @@
             "text-2-actor"
         ],
         "body": [
-            "actor (${1:text})) : actor { $2 }"
+            "actor (${1:text}) : actor { $2 }"
         ]
     }
 }
