@@ -366,6 +366,60 @@
             "#err($0)"
         ]
     },
+    "Debug Block": {
+        "prefix": [
+            "debug-block"
+        ],
+        "body": [
+            "debug {",
+            "\t$0",
+            "};"
+        ]
+    },
+    "Print": {
+        "prefix": [
+            "debug-print"
+        ],
+        "body": [
+            "Debug.print(debug_show ($0));"
+        ]
+    },
+    "Trap": {
+        "prefix": [
+            "debug-trap"
+        ],
+        "body": [
+            "Debug.trap(\"$0\");"
+        ]
+    },
+    "Set Timer": {
+        "prefix": [
+            "set-timer"
+        ],
+        "body": [
+            "let ${$1:id} = Timer.setTimer(#seconds ${$2:0}, func () {",
+            "\t$0",
+            "});"
+        ]
+    },
+    "Recurring Timer": {
+        "prefix": [
+            "recurring-timer"
+        ],
+        "body": [
+            "let ${$1:id} = Timer.recurringTimer(#seconds ${$2:0}, func () {",
+            "\t$0",
+            "});"
+        ]
+    },
+    "Cancel Timer": {
+        "prefix": [
+            "cancel-timer"
+        ],
+        "body": [
+            "Timer.cancelTimer(${$1:id});"
+        ]
+    },
     "Array to Blob": {
         "prefix": [
             "array-2-blob"
@@ -435,7 +489,7 @@
             "text-2-actor"
         ],
         "body": [
-            "actor (${1:text})) : actor { $2 }"
+            "actor (${1:text}) : actor { $2 }"
         ]
     }
 }
