@@ -420,6 +420,14 @@
             "Timer.cancelTimer(${1:id});"
         ]
     },
+    "Doc Comment": {
+        "prefix": [
+            "doc-comment"
+        ],
+        "body": [
+            "/// ${1:Description}"
+        ]
+    },
     "Array to Blob": {
         "prefix": [
             "array-2-blob"
