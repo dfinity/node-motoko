@@ -422,10 +422,9 @@
     },
     "Doc Comment": {
         "prefix": [
-        "doc"
+            "doc-comment"
         ],
         "body": [
-            "",
             "/// ${1:Description}"
         ]
     },
