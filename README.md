@@ -22,11 +22,11 @@ const mo = require('motoko');
 
 // Create a Motoko script in a virtual file system
 mo.write('Main.mo', `
-actor {
-    public query func hello() : async Text {
-        "Hello, JavaScript!"
-    };
-}
+  actor {
+      public query func hello() : async Text {
+          "Hello, JavaScript!"
+      };
+  }
 `);
 
 // Generate the corresponding Candid interface
@@ -37,13 +37,12 @@ console.log(mo.candid('Main.mo'));
 
 ```js
 mo.write('Main.mo', `
-actor Main {
-  public query func hello() : async Text {
-    "Hello, world!"
+  actor Main {
+    public query func hello() : async Text {
+      "Hello, world!"
+    };
   };
-};
-
-await Main.hello();
+  await Main.hello();
 `)
 mo.run('Main.mo');
 ```
