@@ -1,4 +1,4 @@
-name: 'Size'
+name: 'Size Report'
 on: [pull_request]
 jobs:
   size:
