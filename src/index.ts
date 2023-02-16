@@ -28,6 +28,13 @@ export type Diagnostic = {
 
 export type WasmMode = 'ic' | 'wasi';
 
+export type Result = {
+    value?: any;
+    error: {
+        message?: string;
+    } | null;
+};
+
 export default function wrapMotoko(compiler: Compiler) {
     const version = compiler.version || '(unknown)';
     const debug = require('debug')(`motoko:${version}`);
@@ -157,7 +164,7 @@ export default function wrapMotoko(compiler: Compiler) {
         run(
             path: string,
             libPaths?: string[] | undefined,
-        ): { stdout: string; stderr: string; result: number | string } {
+        ): { stdout: string; stderr: string; result: Result } {
             return invoke('run', false, [libPaths || [], path]);
         },
         candid(path: string): string {

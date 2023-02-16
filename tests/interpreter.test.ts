@@ -15,7 +15,9 @@ describe('run', () => {
         mo.write(path, 'let x = 1 + 1; x');
         const result = mo.run(path);
         expect(result).toStrictEqual({
-            result: 0,
+            result: {
+                error: null,
+            },
             stdout: '2 : Nat\n',
             stderr: '',
         });
@@ -35,10 +37,23 @@ describe('run', () => {
     });
 
     test('Random module', () => {
-        const { stdout } = testMotoko(`
+        const { stdout, result } = testMotoko(`
             import Random "mo:base/Random";
             Random.blob()
         `);
         expect(stdout).toMatch(/"[\\0-9A-Z]+" :\s+async<\$top-level> Blob/);
+        expect(result).toStrictEqual({
+            error: null,
+        });
+    });
+
+    test('error handling', () => {
+        const { stderr, result } = testMotoko(`
+            1 / 0
+        `);
+        expect(stderr).toMatch(/arithmetic overflow/);
+        expect(result).toStrictEqual({
+            error: {},
+        });
     });
 });
