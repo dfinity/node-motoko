@@ -15,7 +15,9 @@ describe('run', () => {
         mo.write(path, 'let x = 1 + 1; x');
         const result = mo.run(path);
         expect(result).toStrictEqual({
-            result: 0,
+            result: {
+                error: null,
+            },
             stdout: '2 : Nat\n',
             stderr: '',
         });
