@@ -1,6 +1,6 @@
 {
     "name": "motoko",
-    "version": "3.5.0",
+    "version": "3.5.1",
     "description": "Compile and run Motoko smart contracts in Node.js or the browser.",
     "author": "Ryan Vandersmith (https://github.com/rvanasa)",
     "license": "Apache-2.0",
@@ -75,13 +75,18 @@
         "nft",
         "token"
     ],
-    "size-limit": [{
-        "path": "lib/index.js"
-    }, {
-        "path": "packages/latest/base.json"
-    }, {
-        "path": "versions/latest/moc.min.js"
-    }, {
-        "path": "versions/latest/moc_interpreter.min.js"
-    }]
+    "size-limit": [
+        {
+            "path": "lib/index.js"
+        },
+        {
+            "path": "packages/latest/base.json"
+        },
+        {
+            "path": "versions/latest/moc.min.js"
+        },
+        {
+            "path": "versions/latest/moc_interpreter.min.js"
+        }
+    ]
 }
