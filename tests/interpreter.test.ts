@@ -56,4 +56,12 @@ describe('run', () => {
             error: {},
         });
     });
+
+    // test('long string literal', () => {
+    //     const { stdout, result } = testMotoko(`
+    //         let s = "${'.'.repeat(10000)}";
+    //         s.size()
+    //     `);
+    //     expect(stdout).toStrictEqual('10_000 : Nat\n');
+    // });
 });

@@ -10,31 +10,23 @@ actor Main {
 
 describe('virtual file system I/O', () => {
     test('write -> read', () => {
-        const path = 'test__write_read__.txt';
+        const path = 'WriteRead.txt';
         const text = 'A\nB';
         mo.write(path, text);
         expect(mo.read(path)).toStrictEqual(text);
     });
 });
 
-describe('check', () => {
-    test('works for a basic example', () => {
-        const path = 'test__check__.mo';
+describe('type checker', () => {
+    test('basic example', () => {
+        const path = 'Check.mo';
         mo.write(path, actor);
         expect(mo.check(path)).toStrictEqual([]);
     });
-});
 
-describe('run', () => {
-    test('works for a basic example', () => {
-        const path = 'test__run__.mo';
-        mo.write(path, 'let x = 1 + 1; x');
-        expect(mo.run(path)).toStrictEqual({
-            result: {
-                error: null,
-            },
-            stdout: '2 : Nat\n',
-            stderr: '',
-        });
+    test('long text literal', () => {
+        const path = 'TextLiteral.mo';
+        mo.write(path, `let s = "${'.'.repeat(10000)}"; s.size()`);
+        expect(mo.check(path)).toStrictEqual([]);
     });
 });
