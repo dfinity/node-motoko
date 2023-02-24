@@ -83,13 +83,13 @@
             "path": "packages/latest/base.json"
         },
         {
-            "path": "versions/latest/moc.js"
+            "path": "versions/latest/moc.min.js"
         },
         {
-            "path": "versions/latest/moc_interpreter.js"
+            "path": "versions/latest/moc_interpreter.min.js"
         },
         {
-            "path": "versions/latest/didc.js"
+            "path": "versions/latest/didc.min.js"
         }
     ]
 }
