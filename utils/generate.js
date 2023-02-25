@@ -29,7 +29,9 @@ exec(`cd "${motokoRepoPath}" && nix-build -A js`, (err, stdout, stderr) => {
             throw new Error(`Could not find output directory for ${target}`);
         }
         const dest = resolve(__dirname, `../versions/latest/${target}.min.js`);
-        fs.unlinkSync(dest);
+        if (fs.existsSync(dest)) {
+            fs.unlinkSync(dest);
+        }
         fs.copyFileSync(`${line}/bin/${target}.min.js`, dest);
     }
 });
