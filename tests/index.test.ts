@@ -26,7 +26,7 @@ describe('type checker', () => {
 
     test('long text literal', () => {
         const path = 'TextLiteral.mo';
-        mo.write(path, `let s = "${'.'.repeat(10000)}"; s.size()`);
+        mo.write(path, `let s = "${'⛔'.repeat(20000)}"; s.size()`);
         expect(mo.check(path)).toStrictEqual([]);
     });
 });
