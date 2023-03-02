@@ -66,7 +66,6 @@ async function fetchPackageFiles(
     }
     const repoPart = info.repo.slice(prefix.length, -suffix.length);
 
-    // TODO: modify condition?
     const possiblyCDN = !(
         (info.branch &&
             info.branch.length % 2 === 0 &&
@@ -75,16 +74,21 @@ async function fetchPackageFiles(
         info.branch === 'main'
     );
     if (possiblyCDN) {
-        const result = await fetchFromService(
-            info,
-            'CDN',
-            `https://data.jsdelivr.com/v1/package/gh/${repoPart}@${info.branch}/flat`,
-            `https://cdn.jsdelivr.net/gh/${repoPart}@${info.branch}`,
-            'files',
-            'name',
-        );
-        if (result?.length) {
-            return result;
+        try {
+            const result = await fetchFromService(
+                info,
+                'CDN',
+                `https://data.jsdelivr.com/v1/package/gh/${repoPart}@${info.branch}/flat`,
+                `https://cdn.jsdelivr.net/gh/${repoPart}@${info.branch}`,
+                'files',
+                'name',
+            );
+            if (result?.length) {
+                return result;
+            }
+        }
+        catch(err) {
+            console.error('[CDN]', err);
         }
     }
     return await fetchFromService(
