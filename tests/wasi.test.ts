@@ -1,12 +1,24 @@
 import mo from '../src/versions/moc';
+import { debugWASI } from '../src/wasi';
 
 describe('WASI', () => {
-    test('WASI debug', () => {
-        // await mo.installPackages({ base: 'dfinity/motoko-base/master/src' });
-        mo.loadPackage(require('../packages/latest/base.json'));
+    test('basic WASI debug', async () => {
+        const wasiFile = mo.file('DebugWASI.mo');
+        wasiFile.write(`
+        import { debugPrint = print } "mo:⛔";
 
-        const file = mo.file('Test.mo');
-        file.write('import Debug "mo:base/Debug"; Debug.print(debug_show 123)');
-        file.run();
+        module Interface {
+            public let value = 5;
+        };
+
+        print("value = " # debug_show Interface.value);
+        `);
+
+        const wasiResult = wasiFile.wasm('wasi');
+        // console.log('WASI:', wasiResult);
+
+        const { wasm } = wasiResult;
+
+        await debugWASI(wasm);
     });
 });

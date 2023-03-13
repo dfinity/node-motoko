@@ -1,7 +1,6 @@
-type Exports = any;
-
-const createWasiPolyfill = () => {
-    let moduleInstanceExports: Exports | undefined;
+function createWasiPolyfill() {
+    let moduleInstance: WebAssembly.Instance | undefined;
+    let memory: WebAssembly.Memory | undefined;
 
     const WASI_ESUCCESS = 0;
     const WASI_EBADF = 8;
@@ -10,8 +9,9 @@ const createWasiPolyfill = () => {
 
     const WASI_STDOUT_FILENO = 1;
 
-    function setModuleInstance(instance: Exports) {
-        moduleInstanceExports = instance.exports;
+    function setModuleInstance(instance: WebAssembly.Instance) {
+        moduleInstance = instance;
+        memory = moduleInstance.exports.memory as WebAssembly.Memory;
     }
 
     function getModuleMemoryDataView() {
@@ -19,7 +19,7 @@ const createWasiPolyfill = () => {
         // the returned DataView tends to be dissaociated with the module's memory buffer at the will of the WebAssembly engine
         // cache the returned DataView at your own peril!!
 
-        return new DataView(moduleInstanceExports.memory.buffer);
+        return new DataView(memory.buffer);
     }
 
     function fd_prestat_get(fd: number, bufPtr: number) {
@@ -107,11 +107,7 @@ const createWasiPolyfill = () => {
                     const buf = view.getUint32(ptr, !0);
                     const bufLen = view.getUint32(ptr + 4, !0);
 
-                    return new Uint8Array(
-                        moduleInstanceExports.memory.buffer,
-                        buf,
-                        bufLen,
-                    );
+                    return new Uint8Array(memory.buffer, buf, bufLen);
                 },
             );
 
@@ -180,7 +176,7 @@ const createWasiPolyfill = () => {
         fd_close,
         fd_seek,
     };
-};
+}
 
 let memory: WebAssembly.Memory = null;
 
@@ -188,99 +184,77 @@ let motokoSections = null;
 
 let motokoHashMap: Record<string | number, any> = null;
 
-async function importWasmModule(
-    moduleName: RequestInfo | URL,
-    wasiPolyfill: { setModuleInstance: (arg0: WebAssembly.Instance) => void },
+async function runWasmModule(
+    module: WebAssembly.Module,
+    wasiPolyfill: {
+        setModuleInstance: (instance: WebAssembly.Instance) => void;
+    },
 ) {
     const moduleImports = {
         wasi_unstable: wasiPolyfill,
         env: {},
     };
 
-    let module: WebAssembly.Module;
-    if (WebAssembly.compileStreaming) {
-        module = await WebAssembly.compileStreaming(fetch(moduleName));
-    } else {
-        const response = await fetch(moduleName);
-        const buffer = await response.arrayBuffer();
-        module = await WebAssembly.compile(buffer);
-    }
-
     motokoSections = WebAssembly.Module.customSections(module, 'motoko');
     motokoHashMap =
         motokoSections.length > 0 ? decodeMotokoSection(motokoSections) : null;
 
-    const runWasmModule = async () => {
-        const instance = await WebAssembly.instantiate(module, moduleImports);
-        wasiPolyfill.setModuleInstance(instance);
-        memory = instance.exports.memory as WebAssembly.Memory;
+    const instance = await WebAssembly.instantiate(module, moduleImports);
+    wasiPolyfill.setModuleInstance(instance);
+    memory = instance.exports.memory as WebAssembly.Memory;
 
-        console.log('[output] running _start()');
-        // @ts-expect-error
-        instance.exports._start();
-        console.log('[output] completed _start()');
-    };
-    await runWasmModule();
+    console.log('[output] running _start()');
+    // @ts-expect-error
+    instance.exports._start();
+    console.log('[output] completed _start()');
 }
 
 // From https://github.com/bma73/hexdump-js, with fixes
-const hexdump = (function () {
-    const _fillUp = function (
-            value: string | any[],
-            count: number,
-            fillWith: string,
-        ) {
-            let l = count - value.length;
-            let ret = '';
-            while (--l > -1) ret += fillWith;
-            return ret + value;
-        },
-        hexdump = function (
-            arrayBuffer: ArrayBufferLike,
-            offset: number,
-            length: number,
-        ) {
-            const view = new DataView(arrayBuffer);
-            offset = offset || 0;
-            length = length || arrayBuffer.byteLength;
+const hexdump = (() => {
+    const _fillUp = (
+        value: string | any[],
+        count: number,
+        fillWith: string,
+    ) => {
+        let l = count - value.length;
+        let ret = '';
+        while (--l > -1) ret += fillWith;
+        return ret + value;
+    };
+    return (arrayBuffer: ArrayBufferLike, offset: number, length: number) => {
+        const view = new DataView(arrayBuffer);
+        offset = offset || 0;
+        length = length || arrayBuffer.byteLength;
 
-            let out =
-                _fillUp('Offset', 8, ' ') +
-                '  00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F\n';
-            let row = '';
-            for (let i = 0; i < length; i += 16) {
-                row +=
-                    _fillUp(offset.toString(16).toUpperCase(), 8, '0') + '  ';
-                const n = Math.min(16, length - offset);
-                let string = '';
-                for (let j = 0; j < 16; ++j) {
-                    if (j < n) {
-                        const value = view.getUint8(offset);
-                        string +=
-                            value >= 32 && value < 0x7f
-                                ? String.fromCharCode(value)
-                                : '.';
-                        row +=
-                            _fillUp(value.toString(16).toUpperCase(), 2, '0') +
-                            ' ';
-                        offset++;
-                    } else {
-                        row += '   ';
-                        string += ' ';
-                    }
+        let out =
+            _fillUp('Offset', 8, ' ') +
+            '  00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F\n';
+        let row = '';
+        for (let i = 0; i < length; i += 16) {
+            row += _fillUp(offset.toString(16).toUpperCase(), 8, '0') + '  ';
+            const n = Math.min(16, length - offset);
+            let string = '';
+            for (let j = 0; j < 16; ++j) {
+                if (j < n) {
+                    const value = view.getUint8(offset);
+                    string +=
+                        value >= 32 && value < 0x7f
+                            ? String.fromCharCode(value)
+                            : '.';
+                    row +=
+                        _fillUp(value.toString(16).toUpperCase(), 2, '0') + ' ';
+                    offset++;
+                } else {
+                    row += '   ';
+                    string += ' ';
                 }
-                row += ' ' + string + '\n';
             }
-            out += row;
-            return out;
-        };
-
-    return hexdump;
+            row += ' ' + string + '\n';
+        }
+        out += row;
+        return out;
+    };
 })();
-
-async function loadTest(test: string) {
-    await importWasmModule(test, wasiPolyfill);
-}
 
 // function updateHexDump() {
 //     document.getElementById('memory').value = 'Loading…';
@@ -514,50 +488,13 @@ function decode(view: DataView, v: number) {
     }
 }
 
-function show(v: any) {
+function show(v: number) {
     const view = new DataView(memory.buffer);
     return decode(view, v);
 }
 
-const wasiPolyfill = createWasiPolyfill();
-
-// load files from directory listing
-export async function loadWASI() {
-    let ok = false;
-    try {
-        const dir = await fetch('/run/_out/').then((resp) => resp.text());
-        const select = document.getElementById('test');
-        for (const match of dir.matchAll(/href="([^"]+.wasm)"/g)) {
-            const el = document.createElement('option');
-            el.textContent = match[1];
-            el.value = match[1];
-            select.appendChild(el);
-            ok = true;
-        }
-    } finally {
-        if (!ok) {
-            console.error(
-                'Could not find any wasm files. Did you start this as instructed in test/README.md?',
-            );
-        }
-    }
-
-    // let ok = false;
-    // try {
-    //     const dir = await fetch('/run/_out/').then((resp) => resp.text());
-    //     const select = document.getElementById('test');
-    //     for (const match of dir.matchAll(/href="([^"]+.wasm)"/g)) {
-    //         const el = document.createElement('option');
-    //         el.textContent = match[1];
-    //         el.value = match[1];
-    //         select.appendChild(el);
-    //         ok = true;
-    //     }
-    // } finally {
-    //     if (!ok) {
-    //         console.error(
-    //             'Could not find any wasm files. Did you start this as instructed in test/README.md?',
-    //         );
-    //     }
-    // }
+export async function debugWASI(wasm: Uint8Array) {
+    let module = await WebAssembly.compile(wasm);
+    const wasiPolyfill = createWasiPolyfill();
+    await runWasmModule(module, wasiPolyfill);
 }
