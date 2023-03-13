@@ -1,5 +1,5 @@
 import { Motoko, WasmMode } from '.';
-import { DebugConfig } from './wasi';
+import { DebugConfig } from './debug';
 
 function getValidPath(path: string): string {
     if (typeof path !== 'string') {

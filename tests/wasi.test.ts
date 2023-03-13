@@ -1,5 +1,5 @@
 import mo from '../src/versions/moc';
-import { debugWASI } from '../src/wasi';
+import { debugWASI } from '../src/debug';
 
 describe('WASI', () => {
     test('basic WASI debug', async () => {

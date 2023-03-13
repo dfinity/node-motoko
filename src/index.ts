@@ -8,7 +8,7 @@ import {
     validatePackage,
 } from './package';
 import { resolveLib, resolveMain } from './utils/resolveEntryPoint';
-import { DebugConfig, debugWASI } from './wasi';
+import { DebugConfig, debugWASI } from './debug';
 
 export type Motoko = ReturnType<typeof wrapMotoko>;
 
