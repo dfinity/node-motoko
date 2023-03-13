@@ -333,7 +333,7 @@ const bigThirtyTwo = BigInt(32),
 function getUint64BigInt(
     dataview: { getUint32: (arg0: number, arg1: boolean) => number },
     byteOffset: number,
-    littleEndian: any,
+    littleEndian: boolean = false,
 ) {
     // split 64-bit number into two 32-bit (4-byte) parts
     const left = BigInt(
@@ -349,15 +349,19 @@ function getUint64BigInt(
         : (left << bigThirtyTwo) | right;
 }
 
-function decodeBITS64(view: any, p: number) {
+function decodeBITS64(
+    view: DataView,
+    p: number,
+    littleEndian: boolean = false,
+) {
     return getUint64BigInt(view, p + 4, littleEndian);
 }
 
-function decodeBITS32(view: any, p: number) {
+function decodeBITS32(view: DataView, p: number) {
     return getUint32(view, p + 4);
 }
 
-function decodeARRAY(view: any, p: number) {
+function decodeARRAY(view: DataView, p: number) {
     const size = getUint32(view, p + 4);
     const a = new Array(size);
     let q = p + 8;
@@ -368,23 +372,23 @@ function decodeARRAY(view: any, p: number) {
     return a;
 }
 
-function decodeSOME(view: any, p: number) {
+function decodeSOME(view: DataView, p: number): { '?': any } {
     return { '?': decode(view, getUint32(view, p + 4)) };
 }
 
-function decodeNULL(view: any, p: any) {
+function decodeNULL(view: DataView, p: any): null {
     return null; // Symbol(`null`)?
 }
 
-function decodeMUTBOX(view: any, p: number) {
+function decodeMUTBOX(view: DataView, p: number): { mut: any } {
     return { mut: decode(view, getUint32(view, p + 4)) };
 }
 
-function decodeOBJ_IND(view: any, p: number) {
+function decodeOBJ_IND(view: DataView, p: number): { ind: any } {
     return { ind: decode(view, getUint32(view, p + 4)) };
 }
 
-function decodeCONCAT(view: any, p: number) {
+function decodeCONCAT(view: DataView, p: number): [any, any] {
     const q = p + 8; // skip n_bytes
     return [
         decode(view, getUint32(view, q)),
@@ -392,7 +396,7 @@ function decodeCONCAT(view: any, p: number) {
     ];
 }
 
-function decodeBLOB(view: { buffer: ArrayBufferLike }, p: number) {
+function decodeBLOB(view: DataView, p: number) {
     const size = getUint32(view, p + 4);
     const a = new Uint8Array(view.buffer, p + 8, size);
     try {
@@ -405,7 +409,7 @@ function decodeBLOB(view: { buffer: ArrayBufferLike }, p: number) {
 
 const bigInt28 = BigInt(28);
 const mask = 2 ** 28 - 1;
-function decodeBIGINT(view: any, p: number) {
+function decodeBIGINT(view: DataView, p: number) {
     const size = getUint32(view, p + 4);
     const sign = getUint32(view, p + 12);
     let a = BigInt(0);
@@ -448,7 +452,7 @@ function hashLabel(label: string) {
 }
 
 function decodeMotokoSection(customSections: string | any[]) {
-    const m = new Object();
+    const m: Record<number, string> = {};
     if (customSections.length === 0) return m;
     const view = new DataView(customSections[0]);
     if (view.byteLength === 0) return m;
