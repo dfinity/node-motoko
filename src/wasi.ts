@@ -210,9 +210,9 @@ async function runWasmModule(
     wasiPolyfill.setModuleInstance(instance);
     memory = instance.exports.memory as WebAssembly.Memory;
 
-    const result = (instance.exports._start as () => void)();
+    (instance.exports._start as () => void)();
 
-    return result; ////
+    return instance;
 }
 
 // From https://github.com/bma73/hexdump-js, with fixes
@@ -227,11 +227,11 @@ const hexdump = (() => {
         while (--l > -1) ret += fillWith;
         return ret + value;
     };
-    return (arrayBuffer: ArrayBufferLike, offset: number, length: number) => {
-        const view = new DataView(arrayBuffer);
+    return (arrayBuffer: ArrayBufferLike, offset?: number, length?: number) => {
         offset = offset || 0;
         length = length || arrayBuffer.byteLength;
 
+        const view = new DataView(arrayBuffer);
         let out =
             _fillUp('Offset', 8, ' ') +
             '  00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F\n';
@@ -505,5 +505,15 @@ export async function debugWASI(
 ) {
     let module = await WebAssembly.compile(wasm);
     const wasiPolyfill = createWasiPolyfill(callbacks || {});
-    await runWasmModule(module, wasiPolyfill);
+    const instance = await runWasmModule(module, wasiPolyfill);
+
+    return {
+        hexdump(offset?: number, length?: number): string {
+            return hexdump(
+                (instance.exports.memory as WebAssembly.Memory).buffer,
+                offset,
+                length,
+            );
+        },
+    };
 }
