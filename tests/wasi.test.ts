@@ -14,11 +14,16 @@ describe('WASI', () => {
         print("value = " # debug_show Interface.value);
         `);
 
-        const wasiResult = wasiFile.wasm('wasi');
-        // console.log('WASI:', wasiResult);
+        const { wasm } = wasiFile.wasm('wasi');
 
-        const { wasm } = wasiResult;
+        let stdout = '';
+        await debugWASI(wasm, {
+            onDebugPrint(data: string) {
+                process.stdout.write(data);
+                stdout += data;
+            },
+        });
 
-        await debugWASI(wasm);
+        expect(stdout).toStrictEqual('value = 5\n');
     });
 });

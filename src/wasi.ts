@@ -1,4 +1,8 @@
-function createWasiPolyfill() {
+export interface Callbacks {
+    onDebugPrint?(data: string): void;
+}
+
+function createWasiPolyfill(callbacks: Callbacks) {
     let moduleInstance: WebAssembly.Instance | undefined;
     let memory: WebAssembly.Memory | undefined;
 
@@ -130,9 +134,12 @@ function createWasiPolyfill() {
         //     document.getElementById('output').value +=
         //         String.fromCharCode.apply(null, bufferBytes);
         // }
-        console.log('[output]', String.fromCharCode.apply(null, bufferBytes));
+        // console.log('[output]', String.fromCharCode(...bufferBytes));
 
-        view.setUint32(nwritten, written, !0);
+        const output = String.fromCharCode(...bufferBytes);
+        callbacks.onDebugPrint?.(output);
+
+        view.setUint32(nwritten, written, true);
 
         return WASI_ESUCCESS;
     }
@@ -203,10 +210,9 @@ async function runWasmModule(
     wasiPolyfill.setModuleInstance(instance);
     memory = instance.exports.memory as WebAssembly.Memory;
 
-    console.log('[output] running _start()');
-    // @ts-expect-error
-    instance.exports._start();
-    console.log('[output] completed _start()');
+    const result = (instance.exports._start as () => void)();
+
+    return result; ////
 }
 
 // From https://github.com/bma73/hexdump-js, with fixes
@@ -493,8 +499,11 @@ function show(v: number) {
     return decode(view, v);
 }
 
-export async function debugWASI(wasm: Uint8Array) {
+export async function debugWASI(
+    wasm: Uint8Array,
+    callbacks: Callbacks = undefined,
+) {
     let module = await WebAssembly.compile(wasm);
-    const wasiPolyfill = createWasiPolyfill();
+    const wasiPolyfill = createWasiPolyfill(callbacks || {});
     await runWasmModule(module, wasiPolyfill);
 }
