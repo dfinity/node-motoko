@@ -1,12 +1,21 @@
+import { readFileSync } from 'fs';
+
 export interface DebugConfig {
     onStdout?(data: string): void;
 }
 
 export async function debugWASI(
-    wasm: Uint8Array,
+    module: WebAssembly.Module | string | Uint8Array,
     config: DebugConfig = undefined,
 ) {
-    let module = await WebAssembly.compile(wasm);
+    if (typeof module === 'string') {
+        // Load from file path
+        module = await WebAssembly.compile(readFileSync(module));
+    } else if (module instanceof Uint8Array) {
+        // Load from bytes
+        module = await WebAssembly.compile(module);
+    }
+
     const wasiPolyfill = createWasiPolyfill(config || {});
     const instance = await runWasmModule(module, wasiPolyfill);
 

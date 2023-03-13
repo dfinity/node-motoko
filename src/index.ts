@@ -170,7 +170,7 @@ export default function wrapMotoko(compiler: Compiler) {
         },
         async debug(path: string, config: DebugConfig) {
             const { wasm } = mo.wasm(path, 'wasi');
-            return debugWASI(wasm, config);
+            return debug(wasm, config);
         },
         candid(path: string): string {
             return invoke('candid', true, [path]);
