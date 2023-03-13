@@ -12,15 +12,14 @@ describe('WASI', () => {
             print("value = " # debug_show Module.value);
         `);
 
-        const { wasm } = wasiFile.wasm('wasi');
-
         let stdout = '';
-        const result = await debugWASI(wasm, {
-            onDebugPrint(data: string) {
+        const result = await wasiFile.debug({
+            onStdout(data: string) {
                 process.stdout.write(data);
                 stdout += data;
             },
         });
+        expect(stdout).toStrictEqual('value = 5\n');
 
         expect(stdout).toStrictEqual('value = 5\n');
 

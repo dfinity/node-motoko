@@ -1,8 +1,27 @@
-export interface Callbacks {
-    onDebugPrint?(data: string): void;
+export interface DebugConfig {
+    onStdout?(data: string): void;
 }
 
-function createWasiPolyfill(callbacks: Callbacks) {
+export async function debugWASI(
+    wasm: Uint8Array,
+    config: DebugConfig = undefined,
+) {
+    let module = await WebAssembly.compile(wasm);
+    const wasiPolyfill = createWasiPolyfill(config || {});
+    const instance = await runWasmModule(module, wasiPolyfill);
+
+    return {
+        hexdump(offset?: number, length?: number): string {
+            return hexdump(
+                (instance.exports.memory as WebAssembly.Memory).buffer,
+                offset,
+                length,
+            );
+        },
+    };
+}
+
+function createWasiPolyfill(config: DebugConfig) {
     let moduleInstance: WebAssembly.Instance | undefined;
     let memory: WebAssembly.Memory | undefined;
 
@@ -137,7 +156,7 @@ function createWasiPolyfill(callbacks: Callbacks) {
         // console.log('[output]', String.fromCharCode(...bufferBytes));
 
         const output = String.fromCharCode(...bufferBytes);
-        callbacks.onDebugPrint?.(output);
+        config.onStdout?.(output);
 
         view.setUint32(nwritten, written, true);
 
@@ -497,23 +516,4 @@ function decode(view: DataView, v: number) {
 function show(v: number) {
     const view = new DataView(memory.buffer);
     return decode(view, v);
-}
-
-export async function debugWASI(
-    wasm: Uint8Array,
-    callbacks: Callbacks = undefined,
-) {
-    let module = await WebAssembly.compile(wasm);
-    const wasiPolyfill = createWasiPolyfill(callbacks || {});
-    const instance = await runWasmModule(module, wasiPolyfill);
-
-    return {
-        hexdump(offset?: number, length?: number): string {
-            return hexdump(
-                (instance.exports.memory as WebAssembly.Memory).buffer,
-                offset,
-                length,
-            );
-        },
-    };
 }

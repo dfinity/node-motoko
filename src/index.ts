@@ -1,13 +1,14 @@
-import { Node, simplifyAST, CompilerAST, CompilerNode } from './ast';
+import { CompilerNode, Node, simplifyAST } from './ast';
 import { file } from './file';
 import {
-    fetchPackage,
-    installPackages,
     Package,
     PackageInfo,
+    fetchPackage,
+    installPackages,
     validatePackage,
 } from './package';
-import { resolveMain, resolveLib } from './utils/resolveEntryPoint';
+import { resolveLib, resolveMain } from './utils/resolveEntryPoint';
+import { DebugConfig, debugWASI } from './wasi';
 
 export type Motoko = ReturnType<typeof wrapMotoko>;
 
@@ -166,6 +167,10 @@ export default function wrapMotoko(compiler: Compiler) {
             libPaths?: string[] | undefined,
         ): { stdout: string; stderr: string; result: Result } {
             return invoke('run', false, [libPaths || [], path]);
+        },
+        async debug(path: string, config: DebugConfig) {
+            const { wasm } = mo.wasm(path, 'wasi');
+            return debugWASI(wasm, config);
         },
         candid(path: string): string {
             return invoke('candid', true, [path]);
