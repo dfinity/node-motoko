@@ -18,6 +18,11 @@ export async function debugWASI(
                 length,
             );
         },
+        show(offset: number) {
+            const memory = instance.exports.memory as WebAssembly.Memory;
+            const view = new DataView(memory.buffer);
+            return decode(view, offset);
+        },
     };
 }
 
@@ -204,10 +209,7 @@ function createWasiPolyfill(config: DebugConfig) {
     };
 }
 
-let memory: WebAssembly.Memory = null;
-
 let motokoSections = null;
-
 let motokoHashMap: Record<string | number, any> = null;
 
 async function runWasmModule(
@@ -227,7 +229,6 @@ async function runWasmModule(
 
     const instance = await WebAssembly.instantiate(module, moduleImports);
     wasiPolyfill.setModuleInstance(instance);
-    memory = instance.exports.memory as WebAssembly.Memory;
 
     (instance.exports._start as () => void)();
 
@@ -511,9 +512,4 @@ function decode(view: DataView, v: number) {
         default:
             return { address: p, tag: tag };
     }
-}
-
-function show(v: number) {
-    const view = new DataView(memory.buffer);
-    return decode(view, v);
 }
