@@ -1,18 +1,13 @@
-import { readFileSync } from 'fs';
-
 export interface DebugConfig {
     onStdout?(data: string): void;
 }
 
 export async function debugWASI(
-    module: WebAssembly.Module | string | Uint8Array,
+    module: WebAssembly.Module | BufferSource,
     config: DebugConfig = undefined,
 ) {
-    if (typeof module === 'string') {
-        // Load from file path
-        module = await WebAssembly.compile(readFileSync(module));
-    } else if (module instanceof Uint8Array) {
-        // Load from bytes
+    if (!(module instanceof WebAssembly.Module)) {
+        // Convert `BufferSource` to `Module`
         module = await WebAssembly.compile(module);
     }
 

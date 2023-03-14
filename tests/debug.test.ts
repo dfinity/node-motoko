@@ -29,7 +29,7 @@ describe('WASI debug', () => {
     // Run additional test when `./wasm/Debug.test.wasm` exists
     const wasmFile = join(__dirname, 'wasm/Debug.test.wasm');
     (existsSync(wasmFile) ? test : test.skip)('debug from file', async () => {
-        const wasm = new Uint8Array(readFileSync(wasmFile));
+        const wasm = readFileSync(wasmFile);
         let stdout = '';
         const result = await debugWASI(wasm, {
             onStdout(data: string) {
