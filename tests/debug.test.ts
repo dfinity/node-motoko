@@ -26,6 +26,7 @@ describe('WASI debug', () => {
         // console.log(result.hexdump(0, 100));
     });
 
+    // Run additional test when `./wasm/Debug.test.wasm` exists
     const wasmFile = join(__dirname, 'wasm/Debug.test.wasm');
     (existsSync(wasmFile) ? test : test.skip)('debug from file', async () => {
         const wasm = new Uint8Array(readFileSync(wasmFile));
