@@ -4,15 +4,14 @@ import mo from '../src/versions/moc';
 import { join } from 'path';
 
 describe('WASI debug', () => {
+    const expectedOutput =
+        '(666, true, "hello", "\\FF\\FF\\68\\65\\6C\\6C\\6F", 66, -66, (666, true, "hello", "\\FF\\FF\\68\\65\\6C\\6C\\6F", 66, -66, "abcdefghijklmnopqrstuvwxyz", {fa = 666; fb = "hello"; fc = "state"}, null, ?null, ?(?null), ?666, ?(?666), #fa, #fb("data"), 36_893_488_147_419_103_231, +36_893_488_147_419_103_232, -36_893_488_147_419_103_232))\n';
+
     test('debug in memory', async () => {
         const wasiFile = mo.file('MemoryWASI.mo');
-        wasiFile.write(`
-            import { debugPrint = print } "mo:⛔";
-            module Module {
-                public let value = 5;
-            };
-            print("value = " # debug_show Module.value);
-        `);
+        wasiFile.write(
+            readFileSync(join(__dirname, 'wasm/Debug.test.mo'), 'utf8'),
+        );
 
         let stdout = '';
         const result = await wasiFile.debug({
@@ -21,7 +20,7 @@ describe('WASI debug', () => {
                 stdout += data;
             },
         });
-        expect(stdout).toStrictEqual('value = 5\n');
+        expect(stdout).toStrictEqual(expectedOutput);
 
         // console.log(result.hexdump(0, 100));
     });
@@ -37,6 +36,6 @@ describe('WASI debug', () => {
                 stdout += data;
             },
         });
-        expect(stdout).toStrictEqual('value = 123\n');
+        expect(stdout).toStrictEqual(expectedOutput);
     });
 });
