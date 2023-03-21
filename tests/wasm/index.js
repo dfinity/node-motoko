@@ -1,3 +1,5 @@
+// Temporary: browser debugging environment
+
 'use strict';
 const exports = {};
 var __awaiter =

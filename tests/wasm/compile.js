@@ -1,7 +1,7 @@
 const { execSync } = require('child_process');
 const { readFileSync, writeFileSync } = require('fs');
 const { join } = require('path');
-const { setSourceMapURL } = require('../../lib/wasmSourceMap');
+const { setSourceMapURL } = require('../../lib/utils/wasmSourceMap');
 
 execSync('$(dfx cache show)/moc -wasi-system-api --map Debug.test.mo', {
     cwd: __dirname,
@@ -25,3 +25,11 @@ const editedBuffer = setSourceMapURL(
 console.log(buffer.length, editedBuffer.length);
 
 writeFileSync(wasmPath, editedBuffer);
+
+// const sourceMap = require('source-map');
+// const rawSourceMap = JSON.parse(
+//     readFileSync(join(__dirname, 'Debug.test.wasm.map')),
+// );
+// sourceMap.SourceMapConsumer.with(rawSourceMap, null, (consumer) => {
+//     console.log('CONSUMER:', consumer);
+// }).catch((err) => console.error(err));
