@@ -1,4 +1,5 @@
 import { Motoko, WasmMode } from '.';
+import { DebugConfig } from './debug';
 
 function getValidPath(path: string): string {
     if (typeof path !== 'string') {
@@ -53,6 +54,9 @@ export const file = (mo: Motoko, path: string) => {
         },
         run() {
             return mo.run(path);
+        },
+        debug(config: DebugConfig) {
+            return mo.debug(path, config);
         },
         candid() {
             return mo.candid(path);
