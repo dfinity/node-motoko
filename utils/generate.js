@@ -1,7 +1,7 @@
 'use strict';
 
 const fs = require('fs');
-const { resolve } = require('path');
+const { join, resolve } = require('path');
 const { exec } = require('child_process');
 
 // Generate Motoko compiler bindings
@@ -58,4 +58,24 @@ const { fetchPackage } = require('../lib/package');
 })().catch((err) => {
     console.error(err);
     process.exit(1);
+});
+
+// Update error code explanations
+
+const docsPath = resolve(__dirname, '../docs');
+const errorCodesPath = join(docsPath, 'error-codes');
+const errorCodesSourcePath = join(motokoRepoPath, 'src/lang_utils/error_codes');
+
+if (fs.existsSync(errorCodesPath)) {
+    fs.rmSync(errorCodesPath, { recursive: true });
+}
+fs.mkdirSync(errorCodesPath);
+fs.readdirSync(errorCodesSourcePath).forEach((file) => {
+    const markdown = fs.readFileSync(join(errorCodesSourcePath, file), 'utf8');
+
+    // const Asciidoctor = asciidoctor();
+    // const html = Asciidoctor.convert(adoc);
+    // console.log(html);
+
+    fs.writeFileSync(join(errorCodesPath, file), markdown, 'utf8');
 });
