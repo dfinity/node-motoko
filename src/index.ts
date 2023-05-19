@@ -19,7 +19,7 @@ export type Diagnostic = {
         start: { line: number; character: number };
         end: { line: number; character: number };
     };
-    severity: string;
+    severity: number;
     code: string;
     category: string;
     message: string;
