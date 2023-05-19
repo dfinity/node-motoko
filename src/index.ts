@@ -1,29 +1,28 @@
-import { Node, simplifyAST, CompilerAST, CompilerNode } from './ast';
+import { CompilerNode, Node, simplifyAST } from './ast';
 import { file } from './file';
 import {
-    fetchPackage,
-    installPackages,
     Package,
     PackageInfo,
+    fetchPackage,
+    installPackages,
     validatePackage,
 } from './package';
-import { resolveMain, resolveLib } from './utils/resolveEntryPoint';
+import { resolveLib, resolveMain } from './utils/resolveEntryPoint';
 
 export type Motoko = ReturnType<typeof wrapMotoko>;
 
 type Compiler = any; // TODO: generate from `js_of_ocaml`?
 
-// TODO: compatibility with the VS Code or Monaco `Diagnostic` type
 export type Diagnostic = {
-    code?: string | number | { target: any; value: string | number };
-    message: string;
+    source: string;
     range: {
         start: { line: number; character: number };
         end: { line: number; character: number };
     };
     severity: string;
-    source?: string;
-    tags?: string[];
+    code: string;
+    category: string;
+    message: string;
 };
 
 export type WasmMode = 'ic' | 'wasi';
