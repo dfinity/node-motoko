@@ -1,7 +1,7 @@
 'use strict';
 
 const fs = require('fs');
-const { resolve } = require('path');
+const { join, resolve, basename } = require('path');
 const { exec } = require('child_process');
 
 // Generate Motoko compiler bindings
@@ -59,3 +59,24 @@ const { fetchPackage } = require('../lib/package');
     console.error(err);
     process.exit(1);
 });
+
+// Update error code explanations
+
+const errorCodes = {};
+
+const errorCodesPath = join(motokoRepoPath, 'src/lang_utils/error_codes');
+fs.readdirSync(errorCodesPath).forEach((file) => {
+    const suffix = '.md';
+    if (!file.endsWith(suffix)) {
+        throw new Error(
+            `Unexpected extension for file: ${file} (expected '${suffix}')`,
+        );
+    }
+    const content = fs.readFileSync(join(errorCodesPath, file), 'utf8');
+    errorCodes[basename(file, suffix)] = content;
+});
+
+fs.writeFileSync(
+    resolve(__dirname, '../contrib/generated/errorCodes.json'),
+    JSON.stringify(errorCodes),
+);
