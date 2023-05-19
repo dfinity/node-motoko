@@ -1,13 +1,13 @@
-import { Node, simplifyAST, CompilerAST, CompilerNode } from './ast';
+import { CompilerNode, Node, simplifyAST } from './ast';
 import { file } from './file';
 import {
-    fetchPackage,
-    installPackages,
     Package,
     PackageInfo,
+    fetchPackage,
+    installPackages,
     validatePackage,
 } from './package';
-import { resolveMain, resolveLib } from './utils/resolveEntryPoint';
+import { resolveLib, resolveMain } from './utils/resolveEntryPoint';
 
 export type Motoko = ReturnType<typeof wrapMotoko>;
 
