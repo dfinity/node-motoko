@@ -8,6 +8,7 @@ export const keywords = [
     'case',
     'catch',
     'class',
+    'composite',
     'continue',
     'debug',
     'debug_show',
