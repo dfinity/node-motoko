@@ -1,6 +1,6 @@
 'use strict';
 
-const mo = require('..');
+const mo = require('..').default;
 
 // Compile a WASM file for the IC
 
