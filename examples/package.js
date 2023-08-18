@@ -1,6 +1,6 @@
 'use strict';
 
-const mo = require('..');
+const mo = require('..').default;
 
 mo.fetchPackage('base', 'dfinity/motoko-base/master/src')
     .then(async ({ files, ...meta }) => {

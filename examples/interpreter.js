@@ -1,6 +1,6 @@
 'use strict';
 
-const mo = require('../interpreter');
+const mo = require('../interpreter').default;
 
 const file = mo.file('Main.mo');
 file.write(`
