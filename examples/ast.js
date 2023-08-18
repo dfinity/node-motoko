@@ -18,10 +18,10 @@ actor Main {
 `);
 
 const candid = mo.parseCandid(file.candid());
-console.log('Candid AST:', JSON.stringify(candid, null, 1));
+console.log('Candid AST:', candid);
 
 const motoko = file.parseMotoko();
-console.log('Motoko AST:', JSON.stringify(motoko, null, 1));
+console.log('Motoko AST:', motoko);
 
 const motokoTypes = file.parseMotokoTyped();
-console.log('Motoko AST with types:', JSON.stringify(motokoTypes, null, 1));
+console.log('Motoko AST with types:', motokoTypes);
