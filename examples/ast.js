@@ -11,6 +11,7 @@ import { print } "mo:base/Debug";
 actor Main {
     /// Doc comment
     public query func test() : async Nat {
+        print("Hello!");
         123
     }
 };
