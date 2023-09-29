@@ -499,5 +499,18 @@
         "body": [
             "actor (${1:text}) : actor { ${2:method} : ${3:()} -> async ${4:()} }"
         ]
+    },
+    "Profiling Region": {
+        "prefix": [
+            "profiling-region"
+        ],
+        "body": [
+            "stable let profiling = do {",
+            "\tlet r = Region.new();",
+            "\tignore Region.grow(r, 32)",
+            "\tr",
+            "};"
+        ],
+        "description": "for loop which iterates through a collection"
     }
 }
