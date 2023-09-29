@@ -511,6 +511,6 @@
             "\tr",
             "};"
         ],
-        "description": "for loop which iterates through a collection"
+        "description": "include as the first line in an actor for stable memory region profiling"
     }
 }
