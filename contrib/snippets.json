@@ -507,7 +507,7 @@
         "body": [
             "stable let profiling = do {",
             "\tlet r = Region.new();",
-            "\tignore Region.grow(r, 32)",
+            "\tignore Region.grow(r, 32);",
             "\tr",
             "};"
         ],
