@@ -1,7 +1,7 @@
 import mo from '../src/versions/moc';
 
 const actor = `
-actor Main {
+actor {
     public func test() : async Nat {
         123
     }
