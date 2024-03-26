@@ -69,6 +69,8 @@ describe('run', () => {
         const { stdout } = testMotoko(
             `actor { public func abc() : async Nat { 123 }; }`,
         );
-        expect(stdout).toStrictEqual('actor {abc : shared () -> async Nat}\n');
+        expect(stdout).toStrictEqual(
+            '`ys6dh-5cjiq-5dc` : actor {abc : shared () -> async Nat}\n',
+        );
     });
 });
