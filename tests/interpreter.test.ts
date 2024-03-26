@@ -64,4 +64,13 @@ describe('run', () => {
         `);
         expect(stdout).toStrictEqual('20_000 : Nat\n');
     });
+
+    test('actor value', () => {
+        const { stdout } = testMotoko(
+            `actor { public func abc() : async Nat { 123 }; }`,
+        );
+        expect(stdout).toStrictEqual(
+            '`ys6dh-5cjiq-5dc` : actor {abc : shared () -> async Nat}\n',
+        );
+    });
 });
