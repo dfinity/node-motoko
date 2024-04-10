@@ -73,4 +73,13 @@ describe('run', () => {
             '`ys6dh-5cjiq-5dc` : actor {abc : shared () -> async Nat}\n',
         );
     });
+
+    test('output charset', () => {
+        const { stdout } = testMotoko(
+            `import {debugPrint} "mo:prim"; debugPrint("smażone");`,
+        );
+        expect(stdout).toStrictEqual(
+            'smażone\n() : ()\n',
+        );
+    });
 });
