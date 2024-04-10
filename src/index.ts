@@ -7,6 +7,7 @@ import {
     installPackages,
     validatePackage,
 } from './package';
+import { asciiToUtf8 } from './utils/asciiToUtf8';
 import { resolveLib, resolveMain } from './utils/resolveEntryPoint';
 
 export type Motoko = ReturnType<typeof wrapMotoko>;
@@ -164,7 +165,10 @@ export default function wrapMotoko(compiler: Compiler) {
             path: string,
             libPaths?: string[] | undefined,
         ): { stdout: string; stderr: string; result: Result } {
-            return invoke('run', false, [libPaths || [], path]);
+            const run = invoke('run', false, [libPaths || [], path]);
+            run.stdout = asciiToUtf8(run.stdout);
+            run.stderr = asciiToUtf8(run.stderr);
+            return run;
         },
         candid(path: string): string {
             return invoke('candid', true, [path]);
