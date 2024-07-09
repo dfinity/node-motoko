@@ -15,6 +15,7 @@ export const keywords = [
     'do',
     'else',
     'false',
+    'finally',
     'flexible',
     'for',
     'from_candid',
