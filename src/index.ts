@@ -151,7 +151,7 @@ export default function wrapMotoko(compiler: Compiler) {
             invoke('setCandidPath', false, [directory]);
             invoke('setActorAliases', false, [Object.entries(aliases)]);
         },
-        setMetadata(values: string) {
+        setPublicMetadata(values: string[]) {
             invoke('setPublicMetadata', false, [values]);
         },
         setRunStepLimit(limit: number) {

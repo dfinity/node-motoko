@@ -125,7 +125,7 @@ mo.validatePackage(package)
 mo.setAliases(directory, { alias: id, ... })
 
 // Set the public metadata (an array of strings) used by the compiler
-mo.setMetadata(strings)
+mo.setPublicMetadata(strings)
 
 // Set the maximum number of interpreter steps before cancelling a `run()` invocation
 mo.setRunStepLimit(limit)
