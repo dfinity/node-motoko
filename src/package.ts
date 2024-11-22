@@ -1,7 +1,6 @@
 // Derived from: https://github.com/dfinity/motoko-playground/blob/main/src/workers/file.ts
 
-// @ts-ignore
-import { default as parse } from 'isomorphic-parse-github-url';
+import { default as parse } from 'parse-github-url';
 import fetch from 'cross-fetch';
 import { Motoko } from '.';
 import sanitize from 'sanitize-filename';
