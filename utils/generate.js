@@ -60,7 +60,7 @@ if (!/\d+\.\d+\.\d+/.test(version)) {
         resolve(__dirname, `../versions/latest/moc_interpreter.min.js`),
         (
             await axios.get(
-                `https://github.com/dfinity/motoko/releases/download/${version}/moc-${version}.js`,
+                `https://github.com/dfinity/motoko/releases/download/${version}/moc-interpreter-${version}.js`,
             )
         ).data,
     );
