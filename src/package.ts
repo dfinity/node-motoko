@@ -82,7 +82,7 @@ async function fetchPackageFiles(
                 'files',
                 'name',
             );
-            if (result?.length) {
+            if (result) {
                 return result;
             }
         }
