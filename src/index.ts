@@ -211,10 +211,11 @@ export default function wrapMotoko(compiler: Compiler) {
             return simplifyAST(ast);
         },
         parseMotokoWithDeps(
+            path: string,
             content: string,
         ): { ast: Node, immediateImports: string[] } {
             const { ast, immediateImports } =
-                invoke('parseMotokoWithDeps', true, [content]);
+                invoke('parseMotokoWithDeps', true, [path, content]);
             return { ast: simplifyAST(ast), immediateImports };
         },
         parseMotokoTyped,
