@@ -79,15 +79,15 @@ export default function wrapMotoko(compiler: Compiler) {
     };
     function parseMotokoTyped(
         paths: string,
-        scopeCache: Map<string, Scope>,
+        scopeCache?: Map<string, Scope>,
     ): [ParseMotokoTypedResult, Map<string, Scope>];
     function parseMotokoTyped(
         paths: string[],
-        scopeCache: Map<string, Scope>,
+        scopeCache?: Map<string, Scope>,
     ): [ParseMotokoTypedResult[], Map<string, Scope>];
     function parseMotokoTyped(
         paths: string | string[],
-        scopeCache: Map<string, Scope>,
+        scopeCache?: Map<string, Scope>,
     ): [ParseMotokoTypedResult | ParseMotokoTypedResult[], Map<string, Scope>] {
         if (typeof paths === 'string') {
             const [progs, outCache] = mo.parseMotokoTyped([paths], scopeCache);

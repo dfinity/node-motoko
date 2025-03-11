@@ -93,7 +93,7 @@ describe('ast', () => {
     test('changed file should have different caches', async () => {
         const file = mo.file('AST.mo');
         file.write(actorSource);
-        const [prog0, cache0] = file.parseMotokoTyped(new Map<string, Scope>());
+        const [prog0, cache0] = file.parseMotokoTyped();
 
         // Remove import, ensure caches are different
         const actorSource1 = actorSource.substring(1 + actorSource.indexOf(';'));
