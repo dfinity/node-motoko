@@ -1,5 +1,5 @@
 import { CompilerNode, Node, simplifyAST } from './ast';
-import { Scope, file } from './file';
+import { Scope, file, ScopeCache } from './file';
 import {
     Package,
     PackageInfo,
@@ -35,6 +35,12 @@ export type Result = {
     } | null;
 };
 
+export type ParseMotokoTypedResult = {
+    ast: Node;
+    type: Node;
+    immediateImports: string[];
+};
+
 export default function wrapMotoko(compiler: Compiler) {
     const version = compiler.version || '(unknown)';
     const debug = require('debug')(`motoko:${version}`);
@@ -63,8 +69,8 @@ export default function wrapMotoko(compiler: Compiler) {
             throw new Error(
                 result.diagnostics
                     ? result.diagnostics
-                          .map(({ message }: Diagnostic) => message)
-                          .join('; ')
+                        .map(({ message }: Diagnostic) => message)
+                        .join('; ')
                     : '(no diagnostics)',
             );
         }
@@ -72,23 +78,33 @@ export default function wrapMotoko(compiler: Compiler) {
     };
 
     // Function signatures for `mo.parseMotokoTyped()`
-    type ParseMotokoTypedResult = {
-        ast: Node;
-        type: Node;
-        immediateImports: string[];
-    };
+    function parseMotokoTyped(paths: string): ParseMotokoTypedResult;
+    function parseMotokoTyped(paths: string[]): ParseMotokoTypedResult[];
     function parseMotokoTyped(
         paths: string,
-        scopeCache?: Map<string, Scope>,
-    ): [ParseMotokoTypedResult, Map<string, Scope>];
+        scopeCache: ScopeCache,
+    ): [ParseMotokoTypedResult, ScopeCache];
     function parseMotokoTyped(
         paths: string[],
-        scopeCache?: Map<string, Scope>,
-    ): [ParseMotokoTypedResult[], Map<string, Scope>];
+        scopeCache: ScopeCache,
+    ): [ParseMotokoTypedResult[], ScopeCache];
     function parseMotokoTyped(
         paths: string | string[],
-        scopeCache?: Map<string, Scope>,
-    ): [ParseMotokoTypedResult | ParseMotokoTypedResult[], Map<string, Scope>] {
+        scopeCache?: ScopeCache,
+    ): [ParseMotokoTypedResult | ParseMotokoTypedResult[], ScopeCache]
+        | ParseMotokoTypedResult
+        | ParseMotokoTypedResult[] {
+        if (arguments.length === 1) {
+            if (typeof paths === 'string') {
+                const [progs, _outCache] =
+                    mo.parseMotokoTyped([paths], new Map<string, Scope>());
+                return progs[0];
+            } else {
+                const [progs, _outCache] =
+                    mo.parseMotokoTyped(paths, new Map<string, Scope>());
+                return progs;
+            }
+        }
         if (typeof paths === 'string') {
             const [progs, outCache] = mo.parseMotokoTyped([paths], scopeCache);
             return [progs[0], outCache];
