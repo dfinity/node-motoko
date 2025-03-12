@@ -27,6 +27,8 @@ export const file = (mo: Motoko, path: string) => {
     function parseMotokoTyped(
         scopeCache?: ScopeCache,
     ): [ParseMotokoTypedResult, ScopeCache] | ParseMotokoTypedResult {
+        // Handle the case when the cache is not passed for backwards
+        // compatibility and return the program alone to keep the old behavior.
         const result = mo.parseMotokoTyped(path, scopeCache);
         return arguments.length === 0 ? result[0] : result;
     }

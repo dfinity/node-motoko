@@ -94,6 +94,8 @@ export default function wrapMotoko(compiler: Compiler) {
     ): [ParseMotokoTypedResult | ParseMotokoTypedResult[], ScopeCache]
         | ParseMotokoTypedResult
         | ParseMotokoTypedResult[] {
+        // Handle the case when the cache is not passed for backwards
+        // compatibility and return the program alone to keep the old behavior.
         if (arguments.length === 1) {
             if (typeof paths === 'string') {
                 const [progs, _outCache] =
