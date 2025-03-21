@@ -52,7 +52,7 @@ describe('ast', () => {
                 }
             }
         };
-        const node = asNode(file.parseMotokoTypedWithScopeCache(new Map<string, Scope>())[0].ast);
+        const node = asNode(file.parseMotokoTyped().ast);
         expect(node).toBeTruthy();
         check(node!);
     });
