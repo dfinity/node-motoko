@@ -70,8 +70,11 @@ export const file = (mo: Motoko, path: string) => {
         parseMotokoWithDeps() {
             return mo.parseMotokoWithDeps(path, result.read());
         },
-        parseMotokoTyped(scopeCache: Map<string, Scope>) {
-            return mo.parseMotokoTyped(path, scopeCache);
+        parseMotokoTyped() {
+            return mo.parseMotokoTyped(path);
+        },
+        parseMotokoTypedWithScopeCache(scopeCache: Map<string, Scope>) {
+            return mo.parseMotokoTypedWithScopeCache(path, scopeCache);
         },
     };
     return result;

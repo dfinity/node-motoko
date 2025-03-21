@@ -52,7 +52,7 @@ describe('ast', () => {
                 }
             }
         };
-        const node = asNode(file.parseMotokoTyped(new Map<string, Scope>())[0].ast);
+        const node = asNode(file.parseMotokoTypedWithScopeCache(new Map<string, Scope>())[0].ast);
         expect(node).toBeTruthy();
         check(node!);
     });
@@ -60,7 +60,7 @@ describe('ast', () => {
     test('unchanged file should have equal caches', async () => {
         const file = mo.file('AST.mo');
         file.write(actorSource);
-        const [prog0, cache0] = file.parseMotokoTyped(new Map<string, Scope>());
+        const [prog0, cache0] = file.parseMotokoTypedWithScopeCache(new Map<string, Scope>());
         expect(prog0.ast).toBeTruthy();
         expect(prog0.immediateImports).toEqual(
             ['.node-motoko/base/moc-0.14.1/Debug.mo'],
@@ -69,7 +69,7 @@ describe('ast', () => {
             ['.node-motoko/base/moc-0.14.1/Debug.mo', '@prim'],
         );
 
-        const [prog1, cache1] = file.parseMotokoTyped(cache0);
+        const [prog1, cache1] = file.parseMotokoTypedWithScopeCache(cache0);
         expect(cache1).toEqual(cache0);
         expect(prog1.ast).toStrictEqual(prog0.ast);
         expect(prog1.immediateImports).toEqual(prog0.immediateImports);
@@ -78,12 +78,12 @@ describe('ast', () => {
     test('deleting from cache has equal new cache', async () => {
         const file = mo.file('AST.mo');
         file.write(actorSource);
-        const [prog0, cache0] = file.parseMotokoTyped(new Map<string, Scope>());
+        const [prog0, cache0] = file.parseMotokoTypedWithScopeCache(new Map<string, Scope>());
 
         // Delete cache, ensure it works
         const cache0Clone = new Map<string, Scope>(cache0);
         cache0.delete('AST.mo');
-        const [prog1, cache1] = file.parseMotokoTyped(cache0);
+        const [prog1, cache1] = file.parseMotokoTypedWithScopeCache(cache0);
         expect(cache1).toEqual(cache0Clone);
         expect(prog1.ast).toBeTruthy();
         expect(prog1.immediateImports).toEqual(prog0.immediateImports);
@@ -93,7 +93,7 @@ describe('ast', () => {
     test('changed file should have different caches', async () => {
         const file = mo.file('AST.mo');
         file.write(actorSource);
-        const [prog0, cache0] = file.parseMotokoTyped(new Map<string, Scope>());
+        const [prog0, cache0] = file.parseMotokoTypedWithScopeCache(new Map<string, Scope>());
 
         // Remove import, ensure caches are different
         const actorSource1 = actorSource.substring(1 + actorSource.indexOf(';'));
@@ -101,7 +101,7 @@ describe('ast', () => {
 
         const cache0Clone = new Map<string, Scope>(cache0);
         cache0.clear();
-        const [prog1, cache1] = file.parseMotokoTyped(cache0);
+        const [prog1, cache1] = file.parseMotokoTypedWithScopeCache(cache0);
         expect(Array.from(cache1.keys())).toEqual([]);
         expect(prog1.ast).toBeTruthy();
         expect(prog1.immediateImports).toEqual([]);
@@ -112,7 +112,7 @@ describe('ast', () => {
     test('invalidating an unchanged reference without invalidating the file should be invalid', async () => {
         const [top, _bottom] = loadTopAndBottom();
 
-        const [prog0, cache0] = top.parseMotokoTyped(new Map<string, Scope>());
+        const [prog0, cache0] = top.parseMotokoTypedWithScopeCache(new Map<string, Scope>());
         expect(prog0.ast).toBeTruthy();
         expect(prog0.immediateImports).toEqual(['Bottom.mo']);
         expect(Array.from(cache0.keys())).toEqual(['Bottom.mo']);
@@ -121,7 +121,7 @@ describe('ast', () => {
         // invalidated)
         const cache0Clone = new Map<string, Scope>(cache0);
         cache0.delete('Bottom.mo');
-        const [prog1, cache1] = top.parseMotokoTyped(cache0);
+        const [prog1, cache1] = top.parseMotokoTypedWithScopeCache(cache0);
         expect(cache1).toStrictEqual(cache0Clone);
         expect(Array.from(cache1.keys())).toEqual(['Bottom.mo']);
         expect(prog1.ast).toBeTruthy();
@@ -133,11 +133,11 @@ describe('ast', () => {
         const [top, _bottom] = loadTopAndBottom();
 
         // Remove top and bottom and ensure cache is valid
-        const [prog0, cache0] = top.parseMotokoTyped(new Map<string, Scope>());
+        const [prog0, cache0] = top.parseMotokoTypedWithScopeCache(new Map<string, Scope>());
         const cache0Clone = new Map<string, Scope>(cache0);
         cache0.delete('Bottom.mo');
         cache0.delete('Top.mo');
-        const [prog1, cache1] = top.parseMotokoTyped(cache0);
+        const [prog1, cache1] = top.parseMotokoTypedWithScopeCache(cache0);
         expect(cache1).toStrictEqual(cache0Clone);
         expect(Array.from(cache1.keys())).toEqual(['Bottom.mo']);
         expect(prog1.ast).toBeTruthy();
@@ -148,8 +148,8 @@ describe('ast', () => {
     test('load bottom after top should work', async () => {
         const [top, bottom] = loadTopAndBottom();
 
-        const [_progTop, cacheTop] = top.parseMotokoTyped(new Map<string, Scope>());
-        const [progBottom, cacheBottom] = bottom.parseMotokoTyped(cacheTop);
+        const [_progTop, cacheTop] = top.parseMotokoTypedWithScopeCache(new Map<string, Scope>());
+        const [progBottom, cacheBottom] = bottom.parseMotokoTypedWithScopeCache(cacheTop);
         expect(Array.from(cacheBottom.keys())).toEqual(['Bottom.mo']);
         expect(cacheBottom.get('Top.mo')).toStrictEqual(cacheTop.get('Top.mo'));
         expect(cacheBottom.get('Bottom.mo')).toStrictEqual(cacheTop.get('Bottom.mo'));
@@ -160,12 +160,12 @@ describe('ast', () => {
     test('load top after bottom should work', async () => {
         const [top, bottom] = loadTopAndBottom();
 
-        const [progBottom, cacheBottom] = bottom.parseMotokoTyped(new Map<string, Scope>());
+        const [progBottom, cacheBottom] = bottom.parseMotokoTypedWithScopeCache(new Map<string, Scope>());
         expect(Array.from(cacheBottom.keys())).toEqual([]);
         expect(progBottom.ast).toBeTruthy();
         expect(progBottom.immediateImports).toEqual([]);
 
-        const [progTop, cacheTop] = top.parseMotokoTyped(cacheBottom);
+        const [progTop, cacheTop] = top.parseMotokoTypedWithScopeCache(cacheBottom);
         expect(Array.from(cacheTop.keys())).toEqual(['Bottom.mo']);
         expect(cacheTop.get('Bottom.mo')).not.toStrictEqual(cacheBottom.get('Bottom.mo'));
         expect(progTop.ast).toBeTruthy();
