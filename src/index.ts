@@ -1,5 +1,5 @@
 import { CompilerNode, Node, simplifyAST } from './ast';
-import { Scope, file, ScopeCache } from './file';
+import { Scope, file } from './file';
 import {
     Package,
     PackageInfo,
@@ -35,12 +35,6 @@ export type Result = {
     } | null;
 };
 
-export type ParseMotokoTypedResult = {
-    ast: Node;
-    type: Node;
-    immediateImports: string[];
-};
-
 export default function wrapMotoko(compiler: Compiler) {
     const version = compiler.version || '(unknown)';
     const debug = require('debug')(`motoko:${version}`);
@@ -69,8 +63,8 @@ export default function wrapMotoko(compiler: Compiler) {
             throw new Error(
                 result.diagnostics
                     ? result.diagnostics
-                        .map(({ message }: Diagnostic) => message)
-                        .join('; ')
+                          .map(({ message }: Diagnostic) => message)
+                          .join('; ')
                     : '(no diagnostics)',
             );
         }
@@ -78,35 +72,23 @@ export default function wrapMotoko(compiler: Compiler) {
     };
 
     // Function signatures for `mo.parseMotokoTyped()`
-    function parseMotokoTyped(paths: string): ParseMotokoTypedResult;
-    function parseMotokoTyped(paths: string[]): ParseMotokoTypedResult[];
+    type ParseMotokoTypedResult = {
+        ast: Node;
+        type: Node;
+        immediateImports: string[];
+    };
     function parseMotokoTyped(
         paths: string,
-        scopeCache: ScopeCache,
-    ): [ParseMotokoTypedResult, ScopeCache];
+        scopeCache: Map<string, Scope>,
+    ): [ParseMotokoTypedResult, Map<string, Scope>];
     function parseMotokoTyped(
         paths: string[],
-        scopeCache: ScopeCache,
-    ): [ParseMotokoTypedResult[], ScopeCache];
+        scopeCache: Map<string, Scope>,
+    ): [ParseMotokoTypedResult[], Map<string, Scope>];
     function parseMotokoTyped(
         paths: string | string[],
-        scopeCache?: ScopeCache,
-    ): [ParseMotokoTypedResult | ParseMotokoTypedResult[], ScopeCache]
-        | ParseMotokoTypedResult
-        | ParseMotokoTypedResult[] {
-        // Handle the case when the cache is not passed for backwards
-        // compatibility and return the program alone to keep the old behavior.
-        if (arguments.length === 1) {
-            if (typeof paths === 'string') {
-                const [progs, _outCache] =
-                    mo.parseMotokoTyped([paths], new Map<string, Scope>());
-                return progs[0];
-            } else {
-                const [progs, _outCache] =
-                    mo.parseMotokoTyped(paths, new Map<string, Scope>());
-                return progs;
-            }
-        }
+        scopeCache: Map<string, Scope>,
+    ): [ParseMotokoTypedResult | ParseMotokoTypedResult[], Map<string, Scope>] {
         if (typeof paths === 'string') {
             const [progs, outCache] = mo.parseMotokoTyped([paths], scopeCache);
             return [progs[0], outCache];

@@ -1,4 +1,4 @@
-import { ParseMotokoTypedResult, Motoko, WasmMode } from '.';
+import { Motoko, WasmMode } from '.';
 
 function getValidPath(path: string): string {
     if (typeof path !== 'string') {
@@ -15,24 +15,9 @@ function getValidPath(path: string): string {
 
 export type MotokoFile = ReturnType<typeof file>;
 export type Scope = unknown;
-export type ScopeCache = Map<string, Scope>;
 
 export const file = (mo: Motoko, path: string) => {
     path = getValidPath(path);
-
-    function parseMotokoTyped(): ParseMotokoTypedResult;
-    function parseMotokoTyped(
-        scopeCache: ScopeCache,
-    ): [ParseMotokoTypedResult, ScopeCache];
-    function parseMotokoTyped(
-        scopeCache?: ScopeCache,
-    ): [ParseMotokoTypedResult, ScopeCache] | ParseMotokoTypedResult {
-        // Handle the case when the cache is not passed for backwards
-        // compatibility and return the program alone to keep the old behavior.
-        const result = mo.parseMotokoTyped(path, scopeCache);
-        return arguments.length === 0 ? result[0] : result;
-    }
-
     const result = {
         get path(): string {
             return path;
@@ -85,7 +70,9 @@ export const file = (mo: Motoko, path: string) => {
         parseMotokoWithDeps() {
             return mo.parseMotokoWithDeps(path, result.read());
         },
-        parseMotokoTyped,
+        parseMotokoTyped(scopeCache: Map<string, Scope>) {
+            return mo.parseMotokoTyped(path, scopeCache);
+        },
     };
     return result;
 };
