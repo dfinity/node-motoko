@@ -207,6 +207,9 @@ export default function wrapMotoko(compiler: Compiler) {
         setRunStepLimit(limit: number) {
             invoke('setRunStepLimit', false, [limit]);
         },
+        setTypecheckerCombineSrcs(combineSrcs: boolean) {
+            invoke('setTypecheckerCombineSrcs', false, [combineSrcs]);
+        },
         check(path: string): Diagnostic[] {
             const result = invoke('check', false, [path]);
             return result.diagnostics;

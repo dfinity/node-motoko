@@ -19,6 +19,7 @@ export interface Node extends Partial<Source> {
     parent?: Node | undefined;
     name: string;
     type?: string;
+    typeRep?: Node,
     doc?: string;
     declaration?: Source;
     args?: AST[];
@@ -64,13 +65,24 @@ export function simplifyAST(ast: CompilerAST, parent?: Node | undefined): AST {
         }
         return node;
     }
+    if (ast.name === '@@') {
+        const [start, end] = ast.args as [CompilerSpan, CompilerSpan];
+        return {
+            name: 'Region',
+            file: start.args[0],
+            start: [+start.args[1], +start.args[2]],
+            end: [+end.args[1], +end.args[2]],
+        };
+    }
     if (ast.name === ':') {
-        const [typeAst, type] = ast.args as [CompilerNode, string];
+        const [typeAst, type, typeRep] = ast.args as
+            [CompilerNode, string, CompilerNode];
         const node =
             typeof typeAst === 'string'
                 ? { name: typeAst, parent }
                 : simplifyAST(typeAst, parent);
         node.type = type;
+        node.typeRep = simplifyAST(typeRep, parent);
         return node;
     }
     if (ast.name === '*') {
@@ -90,5 +102,26 @@ export function simplifyAST(ast: CompilerAST, parent?: Node | undefined): AST {
         enumerable: false,
     });
     node.args = simplifyAST(ast.args, node);
+    if (parent && ast.name === 'ID') {
+        // Inherit properties from parent for convenience.
+        Object.defineProperty(node, 'type', {
+            get: () => parent.type,
+            set: (newType) => parent.type = newType,
+            enumerable: true,
+            configurable: true,
+        });
+        Object.defineProperty(node, 'typeRep', {
+            get: () => parent.typeRep,
+            set: (newTypeRep) => parent.typeRep = newTypeRep,
+            enumerable: true,
+            configurable: true,
+        });
+        Object.defineProperty(node, 'doc', {
+            get: () => parent.doc,
+            set: (newDoc) => parent.doc = newDoc,
+            enumerable: true,
+            configurable: true,
+        });
+    }
     return node;
 }
