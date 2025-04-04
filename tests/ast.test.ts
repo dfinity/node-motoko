@@ -62,12 +62,16 @@ describe('ast', () => {
         file.write(actorSource);
         const [prog0, cache0] = file.parseMotokoTypedWithScopeCache(new Map<string, Scope>());
         expect(prog0.ast).toBeTruthy();
-        expect(prog0.immediateImports).toEqual(
-            ['.node-motoko/base/moc-0.14.1/Debug.mo'],
+        expect(prog0.immediateImports.length).toEqual(1);
+        expect(prog0.immediateImports[0]).toMatch(
+            /\.node-motoko\/base\/moc-[0-9\.]+\/Debug\.mo/,
         );
-        expect(Array.from(cache0.keys())).toEqual(
-            ['.node-motoko/base/moc-0.14.1/Debug.mo', '@prim'],
+        const keys0 = Array.from(cache0.keys());
+        expect(keys0.length).toEqual(2);
+        expect(keys0[0]).toMatch(
+            /\.node-motoko\/base\/moc-[0-9\.]+\/Debug\.mo/,
         );
+        expect(keys0[1]).toEqual('@prim');
 
         const [prog1, cache1] = file.parseMotokoTypedWithScopeCache(cache0);
         expect(cache1).toEqual(cache0);
