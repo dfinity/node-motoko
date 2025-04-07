@@ -1,5 +1,5 @@
 import { CompilerNode, Node, simplifyAST } from './ast';
-import { file } from './file';
+import { Scope, file } from './file';
 import {
     Package,
     PackageInfo,
@@ -89,6 +89,48 @@ export default function wrapMotoko(compiler: Compiler) {
                 };
             },
         );
+    }
+
+    // Function signatures for `mo.parseMotokoTypedWithScopeCache()`
+    type ParseMotokoTypedWithScopeCacheResult = {
+        ast: Node;
+        type: Node;
+        immediateImports: string[];
+    };
+    function parseMotokoTypedWithScopeCache(
+        paths: string,
+        scopeCache: Map<string, Scope>,
+    ): [ParseMotokoTypedWithScopeCacheResult, Map<string, Scope>];
+    function parseMotokoTypedWithScopeCache(
+        paths: string[],
+        scopeCache: Map<string, Scope>,
+    ): [ParseMotokoTypedWithScopeCacheResult[], Map<string, Scope>];
+    function parseMotokoTypedWithScopeCache(
+        paths: string | string[],
+        scopeCache: Map<string, Scope>,
+    ): [ParseMotokoTypedWithScopeCacheResult | ParseMotokoTypedWithScopeCacheResult[], Map<string, Scope>] {
+        if (typeof paths === 'string') {
+            const [progs, outCache] = mo.parseMotokoTypedWithScopeCache([paths], scopeCache);
+            return [progs[0], outCache];
+        }
+        const [progs, outCache] =
+            invoke('parseMotokoTypedWithScopeCache', true, [paths, scopeCache]);
+        return [
+            progs.map(
+                ({ ast, typ, immediateImports }: {
+                    ast: CompilerNode;
+                    typ: CompilerNode;
+                    immediateImports: string[];
+                }) => {
+                    return {
+                        ast: simplifyAST(ast),
+                        type: simplifyAST(typ),
+                        immediateImports,
+                    };
+                },
+            ),
+            outCache,
+        ];
     }
 
     const mo = {
@@ -188,7 +230,16 @@ export default function wrapMotoko(compiler: Compiler) {
             const ast = invoke('parseMotoko', true, [content]);
             return simplifyAST(ast);
         },
+        parseMotokoWithDeps(
+            path: string,
+            content: string,
+        ): { ast: Node, immediateImports: string[] } {
+            const { ast, immediateImports } =
+                invoke('parseMotokoWithDeps', true, [path, content]);
+            return { ast: simplifyAST(ast), immediateImports };
+        },
         parseMotokoTyped,
+        parseMotokoTypedWithScopeCache,
         resolveMain(directory: string = ''): string | undefined {
             return resolveMain(mo, directory);
         },

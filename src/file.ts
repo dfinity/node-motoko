@@ -14,6 +14,7 @@ function getValidPath(path: string): string {
 }
 
 export type MotokoFile = ReturnType<typeof file>;
+export type Scope = unknown;
 
 export const file = (mo: Motoko, path: string) => {
     path = getValidPath(path);
@@ -66,8 +67,14 @@ export const file = (mo: Motoko, path: string) => {
         parseMotoko() {
             return mo.parseMotoko(result.read());
         },
+        parseMotokoWithDeps() {
+            return mo.parseMotokoWithDeps(path, result.read());
+        },
         parseMotokoTyped() {
             return mo.parseMotokoTyped(path);
+        },
+        parseMotokoTypedWithScopeCache(scopeCache: Map<string, Scope>) {
+            return mo.parseMotokoTypedWithScopeCache(path, scopeCache);
         },
     };
     return result;
