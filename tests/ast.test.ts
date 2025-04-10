@@ -14,6 +14,18 @@ actor Main {
 };
 `;
 
+const badActorSource = `
+import { print } "mo:base/Debug";
+
+actor Main {
+
+    let x = 1
+    public query test() : async Nat {
+        123
+    }
+};
+`;
+
 function loadTopAndBottom() {
     const root = path.join(__dirname, 'cache');
     const bottom = mo.file('Bottom.mo');
@@ -175,4 +187,21 @@ describe('ast', () => {
         expect(progTop.ast).toBeTruthy();
         expect(progTop.immediateImports).toEqual(['Bottom.mo']);
     });
+
+    test('parseMotoko with error recovery', async () => {
+        const ast1 = mo.parseMotoko('let x = 1 + 2 let y = 2', /*enableRecovery=*/true);
+        expect(asNode(ast1.args[0]).name).toBe("LetD");
+        expect(asNode(ast1.args[1]).name).toBe("LetD");
+        
+        const ast2 = mo.parseMotoko('let x = 1 + ', /*enableRecovery=*/true);
+        expect(asNode(ast2.args[0]).name).toBe("LetD");
+    });
+
+
+    // TODO: parseMotokoTypedWithScopeCache has API of error recovery, but still drop the value
+    // test('parseMotokoTypedWithScopeCache with error recovery', async () => {
+    //    const file = mo.file('AST.mo');
+    //    file.write(badActorSource);
+    //    let [prog0, cache0] = file.parseMotokoTypedWithScopeCache(new Map<string, Scope>(), /*enableRecovery=*/true);
+    // });
 });
