@@ -1,6 +1,6 @@
 import mo from '../src/versions/moc';
 import { Node, asNode } from '../src/ast';
-import { Scope } from '../src/file';
+import { MotokoFile, Scope } from '../src/file';
 import fs from 'fs';
 import path from 'path';
 
@@ -26,13 +26,15 @@ actor Main {
 };
 `;
 
-function loadTopAndBottom() {
-    const root = path.join(__dirname, 'cache');
-    const bottom = mo.file('Bottom.mo');
-    bottom.write(fs.readFileSync(path.join(root, 'Bottom.mo'), 'utf-8'));
-    const top = mo.file('Top.mo');
-    top.write(fs.readFileSync(path.join(root, 'Top.mo'), 'utf-8'));
-    return [top, bottom];
+function loadFile(dirpath: string, filepath: string): MotokoFile {
+    const root = path.join(__dirname, dirpath);
+    const file = mo.file(filepath);
+    file.write(fs.readFileSync(path.join(root, filepath), 'utf-8'));
+    return file;
+}
+
+function loadTopAndBottom(): [MotokoFile, MotokoFile] {
+    return [loadFile('cache', 'Top.mo'), loadFile('cache', 'Bottom.mo')];
 }
 
 describe('ast', () => {
