@@ -1,5 +1,5 @@
 import mo from '../src/versions/moc';
-import { Node, asNode, AST } from '../src/ast';
+import { Node, asNode } from '../src/ast';
 import { Scope } from '../src/file';
 import fs from 'fs';
 import path from 'path';
@@ -9,6 +9,18 @@ import { print } "mo:base/Debug";
 
 actor Main {
     public query func test() : async Nat {
+        123
+    }
+};
+`;
+
+const badActorSource = `
+import { print } "mo:base/Debug";
+
+actor Main {
+
+    let x = 1
+    public query test() : async Nat {
         123
     }
 };
@@ -174,5 +186,91 @@ describe('ast', () => {
         expect(cacheTop.get('Bottom.mo')).not.toStrictEqual(cacheBottom.get('Bottom.mo'));
         expect(progTop.ast).toBeTruthy();
         expect(progTop.immediateImports).toEqual(['Bottom.mo']);
+    });
+
+    test('parseMotoko with error recovery', async () => {
+        const ast1 = mo.parseMotoko('let x = 1 + 2 let y = 2', /*enableRecovery=*/true);
+        expect(asNode(ast1.args?.[0])?.name).toBe("LetD");
+        expect(asNode(ast1.args?.[1])?.name).toBe("LetD");
+
+        const ast2 = mo.parseMotoko('let x = 1 + ', /*enableRecovery=*/true);
+        expect(asNode(ast2.args?.[0])?.name).toBe("LetD");
+    });
+
+    // TODO: parseMotokoTypedWithScopeCache has API of error recovery, but still drop the value
+    // test('parseMotokoTypedWithScopeCache with error recovery', async () => {
+    //    const file = mo.file('AST.mo');
+    //    file.write(badActorSource);
+    //    let [prog0, cache0] = file.parseMotokoTypedWithScopeCache(new Map<string, Scope>(), /*enableRecovery=*/true);
+    // });
+
+
+    test('should not throw an error with type with equal name', async () => {
+        const source = `import Prim "mo:⛔"; type Blob = Prim.Types.Blob;`;
+
+        const file = mo.file('Import.mo');
+        file.write(source);
+
+        const [prog0, cache0] = file.parseMotokoTypedWithScopeCache(new Map<string, Scope>());
+        expect(Array.from(cache0.keys())).toStrictEqual(['@prim']);
+        expect(prog0.ast).toBeTruthy();
+        expect(prog0.immediateImports).toStrictEqual(['@prim']);
+
+        const [prog1, cache1] = file.parseMotokoTypedWithScopeCache(cache0);
+        expect(Array.from(cache1.keys())).toStrictEqual(Array.from(cache0.keys()));
+        expect(cache1).toStrictEqual(cache0);
+        expect(prog1.ast).toStrictEqual(prog0.ast);
+        expect(prog1.immediateImports).toEqual(prog0.immediateImports);
+    });
+
+    function loadImportFiles(): Map<string, ReturnType<typeof mo.file>> {
+        const root = path.join(__dirname, 'cache');
+        const files: Map<string, ReturnType<typeof mo.file>> = new Map();
+        const basenames = ['a1', 'a2', 'b1', 'b2', 'c1'];
+        for (const basename of basenames.reverse()) {
+            const filename = `import_${basename}.mo`;
+            const file = mo.file(filename);
+            file.write(fs.readFileSync(path.join(root, filename), 'utf-8'));
+            files.set(basename, file);
+        }
+        return files;
+    }
+
+    test('should not throw an error with type with equal name', async () => {
+        const files = loadImportFiles();
+
+        const [prog0, cache0] = files.get('a1')!.parseMotokoTypedWithScopeCache(new Map<string, Scope>());
+        expect(Array.from(cache0.keys())).toStrictEqual(['import_b1.mo', 'import_b2.mo', 'import_c1.mo']);
+        expect(prog0.ast).toBeTruthy();
+        expect(prog0.immediateImports).toStrictEqual(['import_b1.mo', 'import_b2.mo']);
+
+        // Cache for a2 should be the same as a1 (unchanged).
+        const [prog1, cache1] = files.get('a2')!.parseMotokoTypedWithScopeCache(cache0);
+        expect(cache1).toStrictEqual(cache0);
+        expect(prog1.immediateImports).toStrictEqual(['import_b1.mo']);
+
+        // Reparsing a1 should not change the AST or cache.
+        const [prog2, cache2] = files.get('a1')!.parseMotokoTypedWithScopeCache(cache1);
+        expect(cache2).toStrictEqual(cache1);
+        expect(Array.from(cache2.keys())).toStrictEqual(Array.from(cache0.keys()));
+        expect(prog2.ast).toStrictEqual(prog0.ast);
+        expect(prog2.immediateImports).toStrictEqual(prog0.immediateImports);
+
+        // Changing declaration order of a1 should not change the cache.
+        const [prog3, cache3] = files.get('a1')!.parseMotokoTypedWithScopeCache(cache1);
+        const updatedA1 = `
+import B2 "import_b2";
+import B1 "import_b1";
+module Y {
+    public type T = B2.T;
+};
+module X {
+    public type T = B1.T;
+};
+`;
+        files.get('a1')!.write(updatedA1);
+        expect(cache3).toStrictEqual(cache2);
+        expect(Array.from(cache3.keys())).toStrictEqual(Array.from(cache2.keys()));
+        expect(prog3.immediateImports).toStrictEqual(prog2.immediateImports);
     });
 });

@@ -64,17 +64,17 @@ export const file = (mo: Motoko, path: string) => {
         parseCandid() {
             return mo.parseCandid(result.read());
         },
-        parseMotoko() {
-            return mo.parseMotoko(result.read());
+        parseMotoko(enableRecovery?: boolean) {
+            return mo.parseMotoko(result.read(), enableRecovery);
         },
-        parseMotokoWithDeps() {
-            return mo.parseMotokoWithDeps(path, result.read());
+        parseMotokoWithDeps(enableRecovery?: boolean) {
+            return mo.parseMotokoWithDeps(path, result.read(), enableRecovery);
         },
         parseMotokoTyped() {
             return mo.parseMotokoTyped(path);
         },
-        parseMotokoTypedWithScopeCache(scopeCache: Map<string, Scope>) {
-            return mo.parseMotokoTypedWithScopeCache(path, scopeCache);
+        parseMotokoTypedWithScopeCache(scopeCache: Map<string, Scope>, enableRecovery?: boolean) {
+            return mo.parseMotokoTypedWithScopeCache(path, scopeCache, enableRecovery);
         },
     };
     return result;
