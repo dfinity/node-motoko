@@ -66,12 +66,13 @@ export function simplifyAST(ast: CompilerAST, parent?: Node | undefined): AST {
         return node;
     }
     if (ast.name === '@@') {
-        const [start, end] = ast.args as [CompilerSpan, CompilerSpan];
+        type RegionSpan = { name: 'Pos'; args: [string, string] };
+        const [file, start, end] = ast.args as [string, RegionSpan, RegionSpan];
         return {
             name: 'Region',
-            file: start.args[0],
-            start: [+start.args[1], +start.args[2]],
-            end: [+end.args[1], +end.args[2]],
+            file,
+            start: [+start.args[0], +start.args[1]],
+            end: [+end.args[0], +end.args[1]],
         };
     }
     if (ast.name === ':') {
