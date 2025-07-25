@@ -6,6 +6,8 @@ const { execSync } = require('child_process');
 const axios = require('axios');
 const { fetchPackage } = require('../lib/package');
 
+const baseVersion = '0.14.14'; // Soon to be replaced by `core`
+
 const version = process.argv[2];
 const isLocalBuild = version === 'local';
 
@@ -82,10 +84,10 @@ const motokoRepoPath =
         console.log('Downloading base library...');
         const basePackage = await fetchPackage(
             'base',
-            `dfinity/motoko-base/moc-${version}/src`,
+            `dfinity/motoko-base/moc-${baseVersion}/src`,
         );
         if (
-            basePackage.version !== `moc-${version}` ||
+            basePackage.version !== `moc-${baseVersion}` ||
             !Object.entries(basePackage.files).length
         ) {
             throw new Error('Unexpected package format');
