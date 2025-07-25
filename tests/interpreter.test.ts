@@ -67,7 +67,7 @@ describe('run', () => {
 
     test('actor value', () => {
         const { stdout } = testMotoko(
-            `actor { public func abc() : async Nat { 123 }; }`,
+            `persistent actor { public func abc() : async Nat { 123 }; }`,
         );
         expect(stdout).toStrictEqual(
             '`ys6dh-5cjiq-5dc` : actor {abc : shared () -> async Nat}\n',
