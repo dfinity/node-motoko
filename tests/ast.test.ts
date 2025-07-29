@@ -5,7 +5,7 @@ import fs from 'fs';
 import path from 'path';
 
 const actorSource = `
-import { print } "mo:core/Debug";
+import { print } "mo:base/Debug"; // Original 'base' package
 
 persistent actor Main {
     public query func test() : async Nat {
@@ -15,7 +15,7 @@ persistent actor Main {
 `;
 
 const badActorSource = `
-import { print } "mo:core/Debug";
+import { print } "mo:core/Debug"; // New 'core' package
 
 persistent actor Main {
 
@@ -39,6 +39,7 @@ function loadTopAndBottom(): [MotokoFile, MotokoFile] {
 
 describe('ast', () => {
     beforeAll(() => {
+        mo.loadPackage(require('../packages/latest/base.json'));
         mo.loadPackage(require('../packages/latest/core.json'));
     });
 

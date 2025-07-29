@@ -25,14 +25,15 @@ describe('run', () => {
 
     test('loop with many iterations', () => {
         const count = '10_000';
-        const { stdout } = testMotoko(`
-            import Iter "mo:core/Iter";
+        const { stdout, stderr } = testMotoko(`
+            import Nat "mo:core/Nat";
             var x = 0;
-            for (i in Iter.range(0, ${count} - 1)) {
+            for (i in Nat.range(0, ${count})) {
                 x += 1;
             };
             x
         `);
+        expect(stderr).toEqual('');
         expect(stdout).toEqual(`${count} : Nat\n`);
     });
 
@@ -78,8 +79,6 @@ describe('run', () => {
         const { stdout } = testMotoko(
             `import {debugPrint} "mo:prim"; debugPrint("smażone");`,
         );
-        expect(stdout).toStrictEqual(
-            'smażone\n() : ()\n',
-        );
+        expect(stdout).toStrictEqual('smażone\n() : ()\n');
     });
 });
