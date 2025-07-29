@@ -1,7 +1,7 @@
 import mo from '../src/versions/interpreter';
 
-// Load base library
-mo.loadPackage(require('../packages/latest/base.json'));
+// Load core package
+mo.loadPackage(require('../packages/latest/core.json'));
 
 const testMotoko = (source: string) => {
     const file = mo.file('__test__.mo');
@@ -26,7 +26,7 @@ describe('run', () => {
     test('loop with many iterations', () => {
         const count = '10_000';
         const { stdout } = testMotoko(`
-            import Iter "mo:base/Iter";
+            import Iter "mo:core/Iter";
             var x = 0;
             for (i in Iter.range(0, ${count} - 1)) {
                 x += 1;
@@ -38,7 +38,7 @@ describe('run', () => {
 
     test('Random module', () => {
         const { stdout, result } = testMotoko(`
-            import Random "mo:base/Random";
+            import Random "mo:core/Random";
             Random.blob()
         `);
         expect(stdout).toMatch(/"[\\0-9A-Z]+" :\s+async<\$top-level> Blob/);

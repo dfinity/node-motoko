@@ -60,7 +60,7 @@ mo.file('Main.mo')
 ```js
 mo.clearPackages();
 await mo.installPackages({
-    base: 'dfinity/motoko-base/master/src', // import "mo:base/...";
+    base: 'dfinity/motoko-core/main/src', // import "mo:core/...";
 });
 ```
 
