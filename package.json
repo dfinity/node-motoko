@@ -86,6 +86,9 @@
             "path": "packages/latest/base.json"
         },
         {
+            "path": "packages/latest/core.json"
+        },
+        {
             "path": "versions/latest/moc.min.js"
         },
         {
