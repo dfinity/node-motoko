@@ -6,7 +6,8 @@ const { execSync } = require('child_process');
 const axios = require('axios');
 const { fetchPackage } = require('../lib/package');
 
-const baseVersion = '0.14.14'; // Soon to be replaced by `core`
+const baseVersion = 'moc-0.15.0'; // Soon to be replaced by `core`
+const coreVersion = 'preview-0.6.0';
 
 const version = process.argv[2];
 const isLocalBuild = version === 'local';
@@ -79,23 +80,25 @@ const motokoRepoPath =
             ).data,
         );
 
-        // TODO: download latest version of `didc.js`
-
-        console.log('Downloading base library...');
-        const basePackage = await fetchPackage(
-            'base',
-            `dfinity/motoko-base/moc-${baseVersion}/src`,
-        );
-        if (
-            basePackage.version !== `moc-${baseVersion}` ||
-            !Object.entries(basePackage.files).length
-        ) {
-            throw new Error('Unexpected package format');
+        const packages = [
+            { name: 'base', version: baseVersion },
+            { name: 'core', version: coreVersion },
+        ];
+        for (const { name, version } of packages) {
+            console.log(`Downloading \`${name}\` package...`);
+            const repoPath = `dfinity/motoko-${name}/${version}/src`;
+            const packageData = await fetchPackage(name, repoPath);
+            if (
+                packageData.version !== version ||
+                !Object.entries(packageData.files).length
+            ) {
+                throw new Error('Unexpected package format');
+            }
+            await fs.writeFile(
+                __dirname + `/../packages/latest/${name}.json`,
+                JSON.stringify(packageData),
+            );
         }
-        await fs.writeFile(
-            __dirname + '/../packages/latest/base.json',
-            JSON.stringify(basePackage),
-        );
     }
 
     console.log('Updating error code explanations...');

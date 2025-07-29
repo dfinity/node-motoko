@@ -90,9 +90,6 @@
         },
         {
             "path": "versions/latest/moc_interpreter.min.js"
-        },
-        {
-            "path": "versions/latest/didc.min.js"
         }
     ]
 }
