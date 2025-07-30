@@ -115,12 +115,12 @@
         ],
         "description": "public actor function declaration"
     },
-    "Base Library Import": {
+    "Core Package Import": {
         "prefix": [
-            "import-base"
+            "import-core"
         ],
         "body": [
-            "import ${1:Module} \"mo:base/${1}\";",
+            "import ${1:Module} \"mo:core/${1}\";",
             "$0"
         ]
     },

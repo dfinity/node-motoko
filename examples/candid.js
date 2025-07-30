@@ -8,7 +8,7 @@ const file = mo.file('Main.mo');
 file.write(`
 /// Doc comment
 
-import { print } "mo:base/Debug";
+import { print } "mo:core/Debug";
 
 actor Main {
     /// Type alias

@@ -18,7 +18,7 @@ describe('fetchPackage', () => {
         mo.loadPackage(require('../packages/latest/base.json'));
 
         const file = mo.file('Test.mo');
-        file.write('import Debug "mo:base/Debug"; Debug.print(debug_show 123)');
+        file.write('import Debug "mo:core/Debug"; Debug.print(debug_show 123)');
         file.run();
     });
 });
