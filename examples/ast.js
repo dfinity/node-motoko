@@ -6,7 +6,7 @@ mo.loadPackage(require('../packages/latest/base.json'));
 
 const file = mo.file('Main.mo');
 file.write(`
-import { print } "mo:base/Debug";
+import { print } "mo:core/Debug";
 
 actor Main {
     /// Doc comment

@@ -1,7 +1,7 @@
 import mo from '../src/versions/interpreter';
 
-// Load base library
-mo.loadPackage(require('../packages/latest/base.json'));
+// Load core package
+mo.loadPackage(require('../packages/latest/core.json'));
 
 const testMotoko = (source: string) => {
     const file = mo.file('__test__.mo');
@@ -25,20 +25,21 @@ describe('run', () => {
 
     test('loop with many iterations', () => {
         const count = '10_000';
-        const { stdout } = testMotoko(`
-            import Iter "mo:base/Iter";
+        const { stdout, stderr } = testMotoko(`
+            import Nat "mo:core/Nat";
             var x = 0;
-            for (i in Iter.range(0, ${count} - 1)) {
+            for (i in Nat.range(0, ${count})) {
                 x += 1;
             };
             x
         `);
+        expect(stderr).toEqual('');
         expect(stdout).toEqual(`${count} : Nat\n`);
     });
 
     test('Random module', () => {
         const { stdout, result } = testMotoko(`
-            import Random "mo:base/Random";
+            import Random "mo:core/Random";
             Random.blob()
         `);
         expect(stdout).toMatch(/"[\\0-9A-Z]+" :\s+async<\$top-level> Blob/);
@@ -78,8 +79,6 @@ describe('run', () => {
         const { stdout } = testMotoko(
             `import {debugPrint} "mo:prim"; debugPrint("smażone");`,
         );
-        expect(stdout).toStrictEqual(
-            'smażone\n() : ()\n',
-        );
+        expect(stdout).toStrictEqual('smażone\n() : ()\n');
     });
 });

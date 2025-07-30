@@ -1,4 +1,3 @@
-import { assert } from 'console';
 import mo from '../src/versions/moc';
 
 describe('entry point resolution', () => {
