@@ -58,11 +58,11 @@ describe('wasm', () => {
             });
         }, canisterId);
 
-/*
+
         // Test individual function call
         const sortResult = await actor.sortAndRemoveDuplicates([3, 2, 1, 2]);
-        expect(sortResult).toEqual([1, 2, 3]);
-*/
+        expect(sortResult).toEqual([1n, 2n, 3n]);
+
         await expect(actor.run()).resolves.not.toThrow();
     }, 15000);
 });
