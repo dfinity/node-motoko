@@ -33,7 +33,27 @@ const motokoRepoPath =
     if (isLocalBuild) {
         console.log('Building Motoko from local repository...');
         try {
+            // build the rts(s)
+            execSync('nix develop -c make -C rts', {
+                cwd: motokoRepoPath,
+                stdio: 'inherit',
+            });
+
+            // modify src/rts/rts.ml to statically embed the rts(s)
+            // (WARNING: this modifies your git sources - don't commit)
+            execSync('nix develop -c bash src/rts/gen.sh rts', {
+                cwd: motokoRepoPath,
+                stdio: 'inherit',
+            });
+
+            // now build the src
             execSync('nix develop -c make -C src moc.js moc_interpreter.js', {
+                cwd: motokoRepoPath,
+                stdio: 'inherit',
+            });
+
+            // restore the original files from git (local changes will be lost)
+            execSync('git checkout src/rts', {
                 cwd: motokoRepoPath,
                 stdio: 'inherit',
             });
