@@ -113,19 +113,36 @@ export default function wrapMotoko(compiler: Compiler) {
         paths: string | string[],
         scopeCache: Map<string, Scope>,
         enableRecovery?: boolean,
-    ): [ParseMotokoTypedWithScopeCacheResult | ParseMotokoTypedWithScopeCacheResult[], Map<string, Scope>] {
+    ): [
+        (
+            | ParseMotokoTypedWithScopeCacheResult
+            | ParseMotokoTypedWithScopeCacheResult[]
+        ),
+        Map<string, Scope>,
+    ] {
         if (enableRecovery === undefined) {
             enableRecovery = false;
         }
         if (typeof paths === 'string') {
-            const [progs, outCache] = mo.parseMotokoTypedWithScopeCache([paths], scopeCache, enableRecovery);
+            const [progs, outCache] = mo.parseMotokoTypedWithScopeCache(
+                [paths],
+                scopeCache,
+                enableRecovery,
+            );
             return [progs[0], outCache];
         }
-        const [progs, outCache] =
-            invoke('parseMotokoTypedWithScopeCache', true, [enableRecovery, paths, scopeCache]);
+        const [progs, outCache] = invoke(
+            'parseMotokoTypedWithScopeCache',
+            true,
+            [enableRecovery, paths, scopeCache],
+        );
         return [
             progs.map(
-                ({ ast, typ, immediateImports }: {
+                ({
+                    ast,
+                    typ,
+                    immediateImports,
+                }: {
                     ast: CompilerNode;
                     typ: CompilerNode;
                     immediateImports: string[];
@@ -210,6 +227,12 @@ export default function wrapMotoko(compiler: Compiler) {
         setTypecheckerCombineSrcs(combineSrcs: boolean) {
             invoke('setTypecheckerCombineSrcs', false, [combineSrcs]);
         },
+        setExtraFlags(argv: string[]) {
+            if (!Array.isArray(argv)) {
+                throw new Error('extra flags must be an array of strings');
+            }
+            invoke('setExtraFlags', false, [argv]);
+        },
         check(path: string): Diagnostic[] {
             const result = invoke('check', false, [path]);
             return result.diagnostics;
@@ -245,9 +268,12 @@ export default function wrapMotoko(compiler: Compiler) {
             path: string,
             content: string,
             enableRecovery = false,
-        ): { ast: Node, immediateImports: string[] } {
-            const { ast, immediateImports } =
-                invoke('parseMotokoWithDeps', true, [enableRecovery, path, content]);
+        ): { ast: Node; immediateImports: string[] } {
+            const { ast, immediateImports } = invoke(
+                'parseMotokoWithDeps',
+                true,
+                [enableRecovery, path, content],
+            );
             return { ast: simplifyAST(ast), immediateImports };
         },
         parseMotokoTyped,
