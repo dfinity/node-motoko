@@ -1,6 +1,6 @@
 {
     "name": "motoko",
-    "version": "3.14.6",
+    "version": "3.15.0",
     "description": "Compile and run Motoko smart contracts in Node.js or the browser.",
     "author": "Ryan Vandersmith (https://github.com/rvanasa)",
     "license": "Apache-2.0",
