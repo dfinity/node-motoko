@@ -11,7 +11,7 @@ function resolveEntryPoint(
     directory: string,
     expected: string,
 ): string {
-    directory = directory || '';
+    directory = directory || '.';
     if (directory && !directory.endsWith('/')) {
         directory += '/';
     }
